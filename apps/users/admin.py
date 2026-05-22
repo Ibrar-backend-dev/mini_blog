@@ -4,15 +4,13 @@ from .models import User
 
 @admin.register(User)
 class CustomUserAdmin(BaseUserAdmin):
+    list_display = ('email', 'username', 'is_staff', 'is_email_verified')
 
-    list_display = ('email','username','is_staff' , 'is_verified')
-
-
-    fieldsets = BaseUserAdmin.fieldsets +(
-        ('Verification Status', {'fields':('is_verified',)}),
+    fieldsets = BaseUserAdmin.fieldsets + (
+        ('Verification Status', {'fields': ('is_email_verified',)}),
     )
 
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
-        (None ,{'fields':('is_verified',)}),
+        (None, {'fields': ('is_email_verified',)}),
     )
     

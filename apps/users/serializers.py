@@ -1,106 +1,77 @@
-﻿from django.contrib.auth import get_user_model,authenticate
+﻿from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
+
+from .services import create_user, normalize_email
 
 User = get_user_model()
 
+
 class SignupSerializer(serializers.ModelSerializer):
-
-    password = serializers.CharField(write_only = True ,min_length=8)
-
-    password_confirm = serializers.CharField(write_only = True , min_length=8)
+    password = serializers.CharField(write_only=True, min_length=8)
+    password_confirm = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-
-        fields = (
-            'id',
-            'username',
-            'email',
-            'password',
-            'password_confirm',
-        )
+        fields = ("username", "email", "password", "password_confirm")
 
     def validate_email(self, value):
-        if User.objects.filter(email = value).exists():
-            raise serializers.ValidationError(
-                'Email already exists.'
-            )
-        return value
-        
-    def validate_username(self , value ):
-        if User.objects.filter(username = value).exists():
-            raise serializers.ValidationError(
-                'Username already exists.'
-            )
+        normalized = normalize_email(value)
+        if User.objects.filter(email=normalized).exists():
+            raise serializers.ValidationError("Email already exists.")
+        return normalized
+
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Username already exists.")
         return value
 
-    def validate(self ,data):
+    def validate(self, attrs):
+        password = attrs.get("password")
+        password_confirm = attrs.get("password_confirm")
+        if password != password_confirm:
+            raise serializers.ValidationError({"password_confirm": "Passwords do not match."})
+        return attrs
 
-        password = data.get('password')
-        password_confirm = data.get('password_confirm')
-
-        if data['password'] != data ['password_confirm']:
-
-            raise serializers.ValidationError({
-                'password_confirm':'passwords do not match.'
-            }
-            )
-        return data
-        
-    def create (self , validated_data):
-
-        user = User.objects.create_user(
-
-            username = validated_data['username'],
-            email = validated_data['email'],
-            password = validated_data['password'],
-
+    def create(self, validated_data):
+        validated_data.pop("password_confirm")
+        return create_user(
+            username=validated_data["username"],
+            email=validated_data["email"],
+            password=validated_data["password"],
         )
-        return user
-        
+
+
 class LoginSerializer(serializers.Serializer):
-
     username_or_email = serializers.CharField()
-    password = serializers.CharField(write_only = True)
+    password = serializers.CharField(write_only=True)
 
-    def validate(self , data):
+    def validate(self, attrs):
+        username_or_email = attrs.get("username_or_email")
+        password = attrs.get("password")
 
-        username_or_email = data.get("username_or_email")
-        password = data.get("password")
+        normalized_email = normalize_email(username_or_email)
+        user = User.objects.filter(email=normalized_email).first()
+        username = user.username if user else username_or_email
 
-        # Try login with email
-        user = User.objects.filter(
-            email = username_or_email
-        ).first()
-
-        if user:
-            username = user.username
-        else:
-            username = username_or_email
-
-        authenticated_user = authenticate(
-            username = username,
-            password = password
-        )
+        authenticated_user = authenticate(username=username, password=password)
 
         if not authenticated_user:
-            raise serializers.ValidationError(
-                'Invalid credentials.'
-            )
-        
-        data['user'] = authenticated_user
-        return data
-        
-class UserProfileSerializer(serializers.ModelSerializer):
+            raise serializers.ValidationError("Invalid credentials.")
 
+        if not getattr(authenticated_user, "is_email_verified", False):
+            raise serializers.ValidationError("Email is not verified.")
+
+        attrs["user"] = authenticated_user
+        return attrs
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User 
+        model = User
         fields = (
-            'id',
-            'username',
-            'email',
-            'is_verified'
+            "id",
+            "username",
+            "email",
+            "is_email_verified",
         )
         read_only_fields = fields
-
-        
