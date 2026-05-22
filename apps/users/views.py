@@ -5,11 +5,7 @@ from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import (
-    SignupSerializer,
-    LoginSerializer,
-    UserProfileSerializer,
-)
+from .serializers import (SignupSerializer,LoginSerializer,UserProfileSerializer,)
 from .permissions import IsOwnerOrReadOnly
 from .services import normalize_email, send_email_verification
 from .utils import verify_email_verification_token
@@ -117,4 +113,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
         user.is_email_verified = True
         user.save(update_fields=["is_email_verified"])
-        return Response({"detail": "Email verified successfully."})
+        return Response({"detail": "Email verified successfully."}) 
+    
+    
