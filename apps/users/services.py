@@ -7,16 +7,12 @@ from .utils import build_email_verification_link, generate_email_verification_to
 User = get_user_model()
 
 
-def normalize_email(email: str) -> str:
+def normalize_email(email):
     """Normalize an email address for storage and comparison."""
     return email.strip().lower()
 
 
-def create_user(
-    username: str,
-    email: str,
-    password: str,
-):
+def create_user(username,email,password):
     """Create and return a new user with an unverified email state."""
     email = normalize_email(email)
 

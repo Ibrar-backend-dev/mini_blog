@@ -6,7 +6,7 @@ from django.core.signing import BadSignature, SignatureExpired
 TOKEN_EXPIRY_SECONDS = 60 * 60 * 24  # 24 hours
 
 
-def generate_email_verification_token(user) -> str:
+def generate_email_verification_token(user):
     """Create a signed verification token for email confirmation."""
     data = {
         "user_id": user.id,
@@ -15,7 +15,7 @@ def generate_email_verification_token(user) -> str:
     return signing.dumps(data)
 
 
-def verify_email_verification_token(token: str):
+def verify_email_verification_token(token):
     """Validate a verification token and return the payload if valid."""
     try:
         return signing.loads(token, max_age=TOKEN_EXPIRY_SECONDS)
@@ -23,7 +23,7 @@ def verify_email_verification_token(token: str):
         return None
 
 
-def build_email_verification_link(token: str) -> str:
+def build_email_verification_link(token):
     """Build a backend verification URL for the email verification token."""
     base_url = getattr(settings, "BACKEND_URL", "http://localhost:8000")
     return f"{base_url.rstrip('/')}/auth/verify-email/{token}"
