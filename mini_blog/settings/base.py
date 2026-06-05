@@ -12,16 +12,16 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from datetime import timedelta
 from pathlib import Path
-from decouple import AutoConfig
+from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-config = AutoConfig(search_path=BASE_DIR)
 
-SECRET_KEY = 'django-insecure-change-me'
 
-DEBUG = True
+SECRET_KEY = config("SECRET_KEY")
 
-ALLOWED_HOSTS = []
+DEBUG = config('DEBUG', cast=bool, default=False)
+
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -52,7 +52,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=180),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,

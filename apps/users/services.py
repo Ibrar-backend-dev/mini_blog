@@ -1,16 +1,18 @@
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
-
+from django.core.exceptions import ValidationError
 from django.conf import settings
 
 from .utils import generate_verification_token , build_verification_url
 
 User = get_user_model()
 
+# E-mail normalization
 def normalize_email(email:str)->str:
     return email.strip().lower()
 
-def create_user(* , username:str, email:str, password:str):
+# User creation
+def create_user(username:str, email:str, password:str):
     email = normalize_email(email)
 
     return User.objects.create_user(
@@ -19,6 +21,24 @@ def create_user(* , username:str, email:str, password:str):
         password = password
     )
 
+# User authentication and  credential verification
+def authenticate_user( *, email:str, password:str):
+    email = normalize_email(email)
+
+    try:
+        user = User.objects.get(email = email)
+    except User.DoesNotExist:
+        raise ValidationError("Invalid email or password.")
+    
+    if not user.check_password(password):
+        raise ValidationError("Invalid email or password.")
+    
+    if not user.is_email_verified:
+        raise ValidationError("Verify your email first.")
+    
+    return user
+
+#E-mail verification and sending verification e-mails
 def send_verification_email(user):
     token = generate_verification_token(user)
     verification_url = build_verification_url(token)

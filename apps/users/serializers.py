@@ -1,6 +1,9 @@
 ﻿from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from django.core.exceptions import ValidationError
 
+
+from .services import authenticate_user
 from .services import create_user 
 User = get_user_model()
 
@@ -37,6 +40,23 @@ class SignupSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
 
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    def validation(self, attrs):
+
+        try:
+            user = authenticate_user(
+                email = attrs['email'],
+                password = attrs['password'],
+            )
+        
+        except ValidationError as exc:
+            raise serializers.ValidationError(str(exc))
+        attrs['user'] = user
+
+        return attrs
 
 
         

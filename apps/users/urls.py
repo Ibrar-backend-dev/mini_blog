@@ -1,10 +1,11 @@
 ﻿from django.urls import path,include
 
-from .views import SignupView
+from .views import SignupView, VerifyEmailView , LoginView
 
 urlpatterns = [
-    path('signup/', SignupView.as_view(), name='signup'),
-    
+    path("signup/", SignupView.as_view(), name="signup"),
+    path("verify-email/<str:token>/", VerifyEmailView.as_view(), name="verify-email"),
+    path("login/", LoginView.as_view(), name="login"),
 
 ]
     
