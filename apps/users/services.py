@@ -27,6 +27,7 @@ def authenticate_user( *, email:str, password:str):
 
     try:
         user = User.objects.get(email = email)
+        
     except User.DoesNotExist:
         raise ValidationError("Invalid email or password.")
     

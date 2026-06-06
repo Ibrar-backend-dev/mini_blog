@@ -1,17 +1,17 @@
-﻿from rest_framework.permissions import BasePermission
+﻿# from rest_framework.permissions import BasePermission
 
-class IsOwnerOrReadOnly(BasePermission):
+# class IsOwnerOrReadOnly(BasePermission):
 
-    def has_object_permission(self, request, view, obj):
+#     def has_object_permission(self, request, view, obj):
         
-        if request.method in ['GET', 'HEAD', 'OPTIONS']:
-            return True
-        return obj.auther == request.user
+#         if request.method in ['GET', 'HEAD', 'OPTIONS']:
+#             return True
+#         return obj.auther == request.user
     
 
-class IsCommentOwner(BasePermission):
+# class IsCommentOwner(BasePermission):
 
-    def has_object_permission(self, request, view, obj):
+#     def has_object_permission(self, request, view, obj):
         
-        return obj.commenter == request.user
+#         return obj.commenter == request.user
     

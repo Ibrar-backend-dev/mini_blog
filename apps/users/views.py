@@ -28,7 +28,7 @@ class SignupView(APIView):
         return Response({
         "message": (
             "Registration successful. "
-            "Please check your email "
+            "Please check your email. "
             "to verify your account."
         ),
         "user_id": user.id,
@@ -53,7 +53,7 @@ class VerifyEmailView(APIView):
             return Response ({"error": "Invalid verification token."}, status=400)
     
         user_id = payload.get("user_id")
-        email = payload.get("email", "").lower().strip()
+        email = payload.get("email").lower().strip()
 
         try:
             user = User.objects.get(id=user_id, email=email)
@@ -92,6 +92,19 @@ class LoginView(APIView):
                 "refresh" : str(refresh),      
             },
             status = 200,
+        )
+    
+
+class ProfileView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        return Response(
+            {
+                'id': request.user.id,
+                'email': request.user.email,
+                'is_email_verified': (request.user.is_email_verified),
+            }
         )
 
 

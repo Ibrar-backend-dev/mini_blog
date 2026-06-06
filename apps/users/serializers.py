@@ -44,17 +44,14 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
-    def validation(self, attrs):
+    def validate(self, attrs):
 
-        try:
-            user = authenticate_user(
+        user = authenticate_user(
                 email = attrs['email'],
                 password = attrs['password'],
             )
         
-        except ValidationError as exc:
-            raise serializers.ValidationError(str(exc))
-        attrs['user'] = user
+        attrs["user"] = user
 
         return attrs
 
