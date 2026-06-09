@@ -3,3 +3,5 @@ djangorestframework>=3.14.0
 djangorestframework-simplejwt>=1.0.0
 psycopg2-binary>=2.9
 python-decouple>=3.8
+celery>=5.2.0
+redis>=4.0.0
