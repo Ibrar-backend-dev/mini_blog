@@ -1,5 +1,6 @@
 ﻿from rest_framework import permissions
 from rest_framework.viewsets import ModelViewSet
+from django_filters.rest_framework import DjangoFilterBackend
 
 from django.db.models import Q
 
@@ -9,6 +10,10 @@ from.serializers import PostSerializer
 
 class PostViewSet(ModelViewSet):
     
+    # filter posts by author id
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['author']
+
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsPostAuthorOrReadOnly]
 

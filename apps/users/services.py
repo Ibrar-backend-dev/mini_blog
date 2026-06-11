@@ -8,11 +8,11 @@ from .utils import generate_verification_token , build_verification_url
 User = get_user_model()
 
 # E-mail normalization
-def normalize_email(email:str)->str:
+def normalize_email(email):
     return email.strip().lower()
 
 # User creation
-def create_user(username:str, email:str, password:str):
+def create_user(username, email, password):
     email = normalize_email(email)
 
     return User.objects.create_user(
@@ -22,7 +22,7 @@ def create_user(username:str, email:str, password:str):
     )
 
 # User authentication and  credential verification
-def authenticate_user( *, email:str, password:str):
+def authenticate_user( *, email, password):
     email = normalize_email(email)
 
     try:
