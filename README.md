@@ -13,16 +13,21 @@
 ## Project setup
 
 1. Clone repository:
+
    ```bash
    git clone https://github.com/Ibrar-backend-dev/mini_blog.git
    cd mini_blog
    ```
+
 2. Create virtual environment and activate:
+
    ```bash
    python -m venv venv
    venv\Scripts\activate
    ```
+
 3. Install dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
@@ -88,7 +93,7 @@ celery -A mini_blog worker -l info -P solo
 
 If you are on Windows and do not have Redis, install Memurai and start it.
 
-- Install Memurai from https://www.memurai.com/
+- Install Memurai from [https://www.memurai.com/](https://www.memurai.com/)
 - Start the Memurai service or run Memurai so it listens on `127.0.0.1:6379`
 
 Then use the same Celery environment values as Redis:
@@ -165,23 +170,25 @@ This is the simplest setup because each process stays running and logs separatel
 ### Example optimized flow without Docker
 
 1. Open terminal A, start Redis/Memurai:
+
    ```bash
    redis-server
    ```
+
 2. Open terminal B, start Celery:
+
    ```bash
    celery -A mini_blog worker -l info -P solo
    ```
+
 3. Open terminal C, start Django:
+
    ```bash
    python manage.py runserver
    ```
 
- ### Don't forget to activate venv in each terminal if not already done.
+### Don't forget to activate venv in each terminal if not already done
 
-If your broker runs as a service, you can reduce this to two terminals:
-
-- terminal A: `celery -A mini_blog worker -l info -P solo`
 - terminal B: `python manage.py runserver`
 
 ## API usage
@@ -205,3 +212,66 @@ If your broker runs as a service, you can reduce this to two terminals:
 
 - `POST /posts/<id>/comments/`
 - `DELETE /comments/<id>/`
+
+## Project folder structure
+
+```text
+mini_blog/
+├── .env
+├── .env.example
+├── .gitignore
+├── README.md
+├── manage.py
+├── requirements.txt
+├── apps/
+│   ├── comments/
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── tasks.py
+│   │   ├── urls.py
+│   │   ├── views.py
+│   │   └── migrations/
+│   │       ├── __init__.py
+│   │       └── 0001_initial.py
+│   ├── posts/
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── permissions.py
+│   │   ├── serializers.py
+│   │   ├── urls.py
+│   │   ├── views.py
+│   │   └── migrations/
+│   │       ├── __init__.py
+│   │       ├── 0001_initial.py
+│   │       └── 0002_alter_post_options.py
+│   └── users/
+│       ├── __init__.py
+│       ├── admin.py
+│       ├── apps.py
+│       ├── models.py
+│       ├── serializers.py
+│       ├── services.py
+│       ├── urls.py
+│       ├── utils.py
+│       ├── views.py
+│       └── migrations/
+│           ├── __init__.py
+│           └── 0001_initial.py
+├── mini_blog/
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── celery.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── settings/
+│       ├── __init__.py
+│       ├── base.py
+│       ├── dev.py
+│       └── prod.py
+└── venv/
+```
