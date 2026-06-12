@@ -2,7 +2,7 @@
 
 ## Dependencies
 
-- Python 3.11+
+- Python 3.11.9
 - Django 5.2
 - djangorestframework 3.14
 - django-filter
@@ -14,7 +14,7 @@
 
 1. Clone repository:
    ```bash
-   git clone https://github.com/Ibrar-backend-dev/miniBlog.git
+   git clone https://github.com/Ibrar-backend-dev/mini_blog.git
    cd mini_blog
    ```
 2. Create virtual environment and activate:
@@ -47,9 +47,11 @@ DEBUG=True
 SECRET_KEY=your-secret-key
 DEFAULT_FROM_EMAIL=no-reply@mini-blog.local
 BACKEND_URL=http://localhost:8000
-CELERY_BROKER_URL=redis://localhost:6379/0
-CELERY_RESULT_BACKEND=redis://localhost:6379/1
+CELERY_BROKER_URL=redis://127.0.0.1:6379/0
+CELERY_RESULT_BACKEND=redis://127.0.0.1:6379/1
 ```
+
+> Note: This project expects a Redis-compatible broker. You can use Redis directly or Memurai on Windows, because Memurai speaks the same Redis protocol.
 
 ## Run migrations
 
@@ -64,14 +66,123 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-## Run Celery
+## Redis / Memurai broker setup
 
-Start Redis first and then run the Celery worker:
+Celery requires a broker before it can run tasks. If Redis is not available, Memurai is the recommended Windows-compatible alternative.
+
+### Option 1: Use local Redis (recommended)
+
+If Redis is installed locally:
 
 ```bash
 redis-server
+```
+
+Then run the Celery worker:
+
+```bash
 celery -A mini_blog worker -l info -P solo
 ```
+
+### Option 2: Use local Memurai on Windows
+
+If you are on Windows and do not have Redis, install Memurai and start it.
+
+- Install Memurai from https://www.memurai.com/
+- Start the Memurai service or run Memurai so it listens on `127.0.0.1:6379`
+
+Then use the same Celery environment values as Redis:
+
+```bash
+CELERY_BROKER_URL=redis://127.0.0.1:6379/0
+CELERY_RESULT_BACKEND=redis://127.0.0.1:6379/1
+```
+
+Start the worker:
+
+```bash
+celery -A mini_blog worker -l info -P solo
+```
+
+### Option 3: Use Docker
+
+If Docker is available, you can run Redis in a container:
+
+```bash
+docker run -d --name mini_blog_redis -p 6379:6379 redis:latest
+```
+
+Then set the same broker values and start Celery:
+
+```bash
+celery -A mini_blog worker -l info -P solo
+```
+
+### If you do not have Docker
+
+If Docker is not installed, use either local Redis or local Memurai.
+
+- On Linux/macOS: install Redis directly (`redis-server`)
+- On Windows: install Memurai and configure it to bind to `127.0.0.1:6379`
+
+## Run Celery with tasks
+
+Always start the broker before starting the worker.
+
+```bash
+# start broker first
+redis-server
+# or start Memurai if using Memurai instead of Redis
+
+# then run Celery worker
+celery -A mini_blog worker -l info -P solo
+```
+
+### Recommended terminal setup (no Docker)
+
+When you are running the app locally without Docker, you typically need three terminal sessions at once:
+
+1. Broker terminal
+   - `redis-server` or the Memurai service
+2. Celery worker terminal
+   - `celery -A mini_blog worker -l info -P solo`
+3. Django server terminal
+   - `python manage.py runserver`
+
+This is the simplest setup because each process stays running and logs separately.
+
+### Ways to optimize terminal usage
+
+- Use separate terminal tabs or panes in Windows Terminal, PowerShell, or any terminal emulator.
+- On Linux/macOS, you can also use a multiplexer such as `tmux` or `screen`.
+- On Windows, start Redis/Memurai as a background service if available, then only keep two terminals open:
+  - one for the Celery worker
+  - one for `runserver`
+- If you use Docker, the broker can run inside a container, so you still need two terminals:
+  - one for the Celery worker
+  - one for `runserver`
+
+### Example optimized flow without Docker
+
+1. Open terminal A, start Redis/Memurai:
+   ```bash
+   redis-server
+   ```
+2. Open terminal B, start Celery:
+   ```bash
+   celery -A mini_blog worker -l info -P solo
+   ```
+3. Open terminal C, start Django:
+   ```bash
+   python manage.py runserver
+   ```
+
+ ### Don't forget to activate venv in each terminal if not already done.
+
+If your broker runs as a service, you can reduce this to two terminals:
+
+- terminal A: `celery -A mini_blog worker -l info -P solo`
+- terminal B: `python manage.py runserver`
 
 ## API usage
 
