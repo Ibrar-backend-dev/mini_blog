@@ -189,6 +189,8 @@ This is the simplest setup because each process stays running and logs separatel
 
 ### Don't forget to activate venv in each terminal if not already done
 
+If your broker runs as a service, you can reduce this to two terminals:
+
 - terminal B: `python manage.py runserver`
 
 ## API usage
