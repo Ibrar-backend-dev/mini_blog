@@ -52,11 +52,13 @@ DEBUG=True
 SECRET_KEY=your-secret-key
 DEFAULT_FROM_EMAIL=no-reply@mini-blog.local
 BACKEND_URL=http://localhost:8000
+# Only required if you run Celery in normal async mode
 CELERY_BROKER_URL=redis://127.0.0.1:6379/0
 CELERY_RESULT_BACKEND=redis://127.0.0.1:6379/1
 ```
 
-> Note: This project expects a Redis-compatible broker. You can use Redis directly or Memurai on Windows, because Memurai speaks the same Redis protocol.
+> Note: For local development, this project currently uses Celery eager mode in `mini_blog/settings/dev.py`.
+> This means tasks are executed immediately in the same Django process and you can use `python manage.py runserver` without starting a separate Celery worker.
 
 ## Run migrations
 
@@ -65,15 +67,43 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-## Run Django server
+## Run Django server in development
 
 ```bash
 python manage.py runserver
 ```
 
-## Redis / Memurai broker setup
+### Development mode behavior
 
-Celery requires a broker before it can run tasks. If Redis is not available, Memurai is the recommended Windows-compatible alternative.
+In development, `CELERY_TASK_ALWAYS_EAGER = True` and `CELERY_TASK_EAGER_PROPAGATES = True` are set in `mini_blog/settings/dev.py`.
+
+That means:
+
+- `task.delay(...)` still triggers the task
+- the task runs immediately and synchronously inside Django
+- no separate Celery worker is required for local testing
+- no Redis broker is needed for that eager-mode flow
+
+### Important production warning
+
+Eager mode is only for development and testing.
+
+Do not use eager mode in production because:
+
+- tasks are not processed in the background
+- requests wait until the task completes
+- failed tasks do not behave like real async retries
+- there is no persistence or broker-managed delivery
+
+## Normal async Celery setup (production)
+
+If you want real background task execution, use a broker and worker instead of eager mode.
+
+> In production, remove eager mode from your production settings and run a broker plus worker.
+
+### Redis / Memurai broker setup
+
+Celery requires a broker before it can run tasks.
 
 ### Option 1: Use local Redis (recommended)
 
@@ -123,16 +153,9 @@ Then set the same broker values and start Celery:
 celery -A mini_blog worker -l info -P solo
 ```
 
-### If you do not have Docker
+### Running the broker and worker together
 
-If Docker is not installed, use either local Redis or local Memurai.
-
-- On Linux/macOS: install Redis directly (`redis-server`)
-- On Windows: install Memurai and configure it to bind to `127.0.0.1:6379`
-
-## Run Celery with tasks
-
-Always start the broker before starting the worker.
+For normal Celery usage, the order is:
 
 ```bash
 # start broker first
@@ -143,9 +166,9 @@ redis-server
 celery -A mini_blog worker -l info -P solo
 ```
 
-### Recommended terminal setup (no Docker)
+### Recommended terminal setup for real async Celery
 
-When you are running the app locally without Docker, you typically need three terminal sessions at once:
+When you run the app locally without Docker, you typically use three terminals:
 
 1. Broker terminal
    - `redis-server` or the Memurai service
@@ -154,44 +177,7 @@ When you are running the app locally without Docker, you typically need three te
 3. Django server terminal
    - `python manage.py runserver`
 
-This is the simplest setup because each process stays running and logs separately.
-
-### Ways to optimize terminal usage
-
-- Use separate terminal tabs or panes in Windows Terminal, PowerShell, or any terminal emulator.
-- On Linux/macOS, you can also use a multiplexer such as `tmux` or `screen`.
-- On Windows, start Redis/Memurai as a background service if available, then only keep two terminals open:
-  - one for the Celery worker
-  - one for `runserver`
-- If you use Docker, the broker can run inside a container, so you still need two terminals:
-  - one for the Celery worker
-  - one for `runserver`
-
-### Example optimized flow without Docker
-
-1. Open terminal A, start Redis/Memurai:
-
-   ```bash
-   redis-server
-   ```
-
-2. Open terminal B, start Celery:
-
-   ```bash
-   celery -A mini_blog worker -l info -P solo
-   ```
-
-3. Open terminal C, start Django:
-
-   ```bash
-   python manage.py runserver
-   ```
-
-### Don't forget to activate venv in each terminal if not already done
-
-If your broker runs as a service, you can reduce this to two terminals:
-
-- terminal B: `python manage.py runserver`
+If your broker runs as a background service, you can reduce this to two terminals.
 
 ## API usage
 
