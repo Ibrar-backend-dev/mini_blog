@@ -1,4 +1,5 @@
-﻿from rest_framework import permissions
+﻿from rest_framework import permissions, status
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -32,3 +33,11 @@ class PostViewSet(ModelViewSet):
     def perform_create(self, serializer):
 
         serializer.save(author = self.request.user)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(
+            {"message": "your message is deleted"},
+            status=status.HTTP_200_OK,
+        )
