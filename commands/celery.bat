@@ -1,0 +1,1 @@
+celery -A mini_blog worker -l info -P solo
