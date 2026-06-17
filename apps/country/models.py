@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 class Country(models.Model):
@@ -9,3 +10,18 @@ class Country(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def clean(self):
+        self.name = self.name.capitalize().strip()
+
+        if not self.name:
+            raise ValidationError("Country name cannot be empty.") 
+        
+        if Country.objects.filter(name=self.name).exclude(id=self.id).exists():
+            raise ValidationError("Country with this name already exists.")
+        
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+        

@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     'apps.users',
     'apps.posts',
     'apps.comments',
+    'apps.country',
+    'apps.state',
+    'apps.city',
 ]
 
 REST_FRAMEWORK = {
