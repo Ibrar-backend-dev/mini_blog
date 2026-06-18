@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.country',
     'apps.state',
     'apps.city',
+    'apps.address',
 ]
 
 REST_FRAMEWORK = {
