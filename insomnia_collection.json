@@ -1,0 +1,879 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-06-16T00:00:00.000Z",
+  "__export_source": "codex",
+  "resources": [
+    {
+      "_id": "wrk_mini_blog",
+      "_type": "workspace",
+      "name": "Mini Blog API",
+      "description": "Insomnia collection for the Mini Blog Django REST API"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "parentId": "wrk_mini_blog",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8000",
+        "access_token": "",
+        "refresh_token": "",
+        "verification_token": "",
+        "post_id": "1",
+        "comment_id": "1",
+        "author_id": "1",
+        "country_id": "1",
+        "state_id": "1",
+        "city_id": "1"
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "base_url",
+          "access_token",
+          "refresh_token",
+          "verification_token",
+          "post_id",
+          "comment_id",
+          "author_id",
+          "country_id",
+          "state_id",
+          "city_id"
+        ]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 0
+    },
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "parentId": "wrk_mini_blog",
+      "name": "Auth",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 100
+    },
+    {
+      "_id": "fld_posts",
+      "_type": "request_group",
+      "parentId": "wrk_mini_blog",
+      "name": "Posts",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 200
+    },
+    {
+      "_id": "fld_comments",
+      "_type": "request_group",
+      "parentId": "wrk_mini_blog",
+      "name": "Comments",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 300
+    },
+    {
+      "_id": "req_auth_signup",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Signup",
+      "description": "Creates a user and sends an email verification link. In development, the email is printed to the Django console.",
+      "url": "{{ _.base_url }}/auth/signup/",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"demo_user\",\n  \"email\": \"demo@example.com\",\n  \"password\": \"StrongPass123!\",\n  \"password_confirm\": \"StrongPass123!\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_auth_verify_email",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Verify Email",
+      "description": "Paste the token from the development console email into the verification_token environment variable.",
+      "url": "{{ _.base_url }}/auth/verify-email/{{ _.verification_token }}/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 200
+    },
+    {
+      "_id": "req_auth_login",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login",
+      "description": "Copy the returned access and refresh values into the access_token and refresh_token environment variables.",
+      "url": "{{ _.base_url }}/auth/login/",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"demo@example.com\",\n  \"password\": \"StrongPass123!\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 300
+    },
+    {
+      "_id": "fld_countries",
+      "_type": "request_group",
+      "parentId": "wrk_mini_blog",
+      "name": "Countries",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 400
+    },
+    {
+      "_id": "fld_states",
+      "_type": "request_group",
+      "parentId": "wrk_mini_blog",
+      "name": "States",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 500
+    },
+    {
+      "_id": "fld_cities",
+      "_type": "request_group",
+      "parentId": "wrk_mini_blog",
+      "name": "Cities",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 600
+    },
+    {
+      "_id": "req_auth_profile",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Profile",
+      "description": "Requires a Bearer access token.",
+      "url": "{{ _.base_url }}/auth/profile/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 400
+    },
+    {
+      "_id": "req_posts_list",
+      "_type": "request",
+      "parentId": "fld_posts",
+      "name": "List Posts",
+      "description": "Anonymous users see public posts. Authenticated users see public posts and their own private posts.",
+      "url": "{{ _.base_url }}/posts/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}",
+        "disabled": true
+      },
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_posts_filter_author",
+      "_type": "request",
+      "parentId": "fld_posts",
+      "name": "List Posts by Author",
+      "description": "Uses django-filter on the author id.",
+      "url": "{{ _.base_url }}/posts/",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {
+          "name": "author",
+          "value": "{{ _.author_id }}",
+          "disabled": false
+        }
+      ],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}",
+        "disabled": true
+      },
+      "metaSortKey": 200
+    },
+    {
+      "_id": "req_posts_create",
+      "_type": "request",
+      "parentId": "fld_posts",
+      "name": "Create Post",
+      "description": "Requires authentication.",
+      "url": "{{ _.base_url }}/posts/",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"My first post\",\n  \"content\": \"This is the post content.\",\n  \"is_private\": false\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 300
+    },
+    {
+      "_id": "req_posts_retrieve",
+      "_type": "request",
+      "parentId": "fld_posts",
+      "name": "Retrieve Post",
+      "description": "Uses the post_id environment variable.",
+      "url": "{{ _.base_url }}/posts/{{ _.post_id }}/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}",
+        "disabled": true
+      },
+      "metaSortKey": 400
+    },
+    {
+      "_id": "req_posts_update",
+      "_type": "request",
+      "parentId": "fld_posts",
+      "name": "Update Post",
+      "description": "Full update. Only the post author can update.",
+      "url": "{{ _.base_url }}/posts/{{ _.post_id }}/",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Updated post title\",\n  \"content\": \"Updated post content.\",\n  \"is_private\": false\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 500
+    },
+    {
+      "_id": "req_posts_partial_update",
+      "_type": "request",
+      "parentId": "fld_posts",
+      "name": "Partial Update Post",
+      "description": "Partial update. Only the post author can update.",
+      "url": "{{ _.base_url }}/posts/{{ _.post_id }}/",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Partially updated title\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 600
+    },
+    {
+      "_id": "req_posts_delete",
+      "_type": "request",
+      "parentId": "fld_posts",
+      "name": "Delete Post",
+      "description": "Only the post author can delete.",
+      "url": "{{ _.base_url }}/posts/{{ _.post_id }}/",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 700
+    },
+    {
+      "_id": "req_comments_create",
+      "_type": "request",
+      "parentId": "fld_comments",
+      "name": "Create Comment",
+      "description": "Requires authentication. Comments are only allowed on public posts.",
+      "url": "{{ _.base_url }}/posts/{{ _.post_id }}/comments/",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"comment_text\": \"Great post!\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_comments_delete",
+      "_type": "request",
+      "parentId": "fld_comments",
+      "name": "Delete Comment",
+      "description": "Only the commenter can delete their own comment.",
+      "url": "{{ _.base_url }}/comments/{{ _.comment_id }}/",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 200
+    },
+    {
+      "_id": "req_countries_list",
+      "_type": "request",
+      "parentId": "fld_countries",
+      "name": "List Countries",
+      "description": "Lists all countries.",
+      "url": "{{ _.base_url }}/countries/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_countries_create",
+      "_type": "request",
+      "parentId": "fld_countries",
+      "name": "Create Country",
+      "description": "Requires authentication.",
+      "url": "{{ _.base_url }}/countries/",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Pakistan\",\n  \"description\": \"Country description\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 200
+    },
+    {
+      "_id": "req_countries_retrieve",
+      "_type": "request",
+      "parentId": "fld_countries",
+      "name": "Retrieve Country",
+      "description": "Uses the country_id environment variable.",
+      "url": "{{ _.base_url }}/countries/{{ _.country_id }}/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 300
+    },
+    {
+      "_id": "req_countries_update",
+      "_type": "request",
+      "parentId": "fld_countries",
+      "name": "Update Country",
+      "description": "Full update. Requires authentication.",
+      "url": "{{ _.base_url }}/countries/{{ _.country_id }}/",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Pakistan\",\n  \"description\": \"Updated country description\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 400
+    },
+    {
+      "_id": "req_countries_partial_update",
+      "_type": "request",
+      "parentId": "fld_countries",
+      "name": "Partial Update Country",
+      "description": "Partial update. Requires authentication.",
+      "url": "{{ _.base_url }}/countries/{{ _.country_id }}/",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"description\": \"Partially updated country description\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 500
+    },
+    {
+      "_id": "req_countries_delete",
+      "_type": "request",
+      "parentId": "fld_countries",
+      "name": "Delete Country",
+      "description": "Requires authentication.",
+      "url": "{{ _.base_url }}/countries/{{ _.country_id }}/",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 600
+    },
+    {
+      "_id": "req_states_list",
+      "_type": "request",
+      "parentId": "fld_states",
+      "name": "List States",
+      "description": "Lists all states with country name.",
+      "url": "{{ _.base_url }}/states/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_states_create",
+      "_type": "request",
+      "parentId": "fld_states",
+      "name": "Create State",
+      "description": "Requires authentication. Send country as the country id.",
+      "url": "{{ _.base_url }}/states/",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"country\": {{ _.country_id }},\n  \"name\": \"Punjab\",\n  \"description\": \"State description\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 200
+    },
+    {
+      "_id": "req_states_retrieve",
+      "_type": "request",
+      "parentId": "fld_states",
+      "name": "Retrieve State",
+      "description": "Uses the state_id environment variable.",
+      "url": "{{ _.base_url }}/states/{{ _.state_id }}/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 300
+    },
+    {
+      "_id": "req_states_update",
+      "_type": "request",
+      "parentId": "fld_states",
+      "name": "Update State",
+      "description": "Full update. Requires authentication.",
+      "url": "{{ _.base_url }}/states/{{ _.state_id }}/",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"country\": {{ _.country_id }},\n  \"name\": \"Punjab\",\n  \"description\": \"Updated state description\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 400
+    },
+    {
+      "_id": "req_states_partial_update",
+      "_type": "request",
+      "parentId": "fld_states",
+      "name": "Partial Update State",
+      "description": "Partial update. Requires authentication.",
+      "url": "{{ _.base_url }}/states/{{ _.state_id }}/",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"description\": \"Partially updated state description\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 500
+    },
+    {
+      "_id": "req_states_delete",
+      "_type": "request",
+      "parentId": "fld_states",
+      "name": "Delete State",
+      "description": "Requires authentication.",
+      "url": "{{ _.base_url }}/states/{{ _.state_id }}/",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 600
+    },
+    {
+      "_id": "req_cities_list",
+      "_type": "request",
+      "parentId": "fld_cities",
+      "name": "List Cities",
+      "description": "Lists all cities with state and country data.",
+      "url": "{{ _.base_url }}/cities/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_cities_create",
+      "_type": "request",
+      "parentId": "fld_cities",
+      "name": "Create City",
+      "description": "Requires authentication. Send state as the state id.",
+      "url": "{{ _.base_url }}/cities/",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"state\": {{ _.state_id }},\n  \"name\": \"Lahore\",\n  \"description\": \"City description\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 200
+    },
+    {
+      "_id": "req_cities_retrieve",
+      "_type": "request",
+      "parentId": "fld_cities",
+      "name": "Retrieve City",
+      "description": "Uses the city_id environment variable.",
+      "url": "{{ _.base_url }}/cities/{{ _.city_id }}/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 300
+    },
+    {
+      "_id": "req_cities_update",
+      "_type": "request",
+      "parentId": "fld_cities",
+      "name": "Update City",
+      "description": "Full update. Requires authentication.",
+      "url": "{{ _.base_url }}/cities/{{ _.city_id }}/",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"state\": {{ _.state_id }},\n  \"name\": \"Lahore\",\n  \"description\": \"Updated city description\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 400
+    },
+    {
+      "_id": "req_cities_partial_update",
+      "_type": "request",
+      "parentId": "fld_cities",
+      "name": "Partial Update City",
+      "description": "Partial update. Requires authentication.",
+      "url": "{{ _.base_url }}/cities/{{ _.city_id }}/",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"description\": \"Partially updated city description\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 500
+    },
+    {
+      "_id": "req_cities_delete",
+      "_type": "request",
+      "parentId": "fld_cities",
+      "name": "Delete City",
+      "description": "Requires authentication.",
+      "url": "{{ _.base_url }}/cities/{{ _.city_id }}/",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 600
+    }
+  ]
+}
+

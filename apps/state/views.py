@@ -6,9 +6,11 @@ from .serializers import StateSerializer
 from .models import  State
 # Create your views here.
 class StateViewSet(ModelViewSet):
-    queryset = State.objects.all()
+    
     serializer_class = StateSerializer
-
+    
+    def get_queryset(self):
+        return State.objects.select_related("country")
 
     def get_serializer_context(self):
 

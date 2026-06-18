@@ -7,13 +7,13 @@ class StateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = State
-        fields = ['id', 'country_id','country_name', 'name', 'description']
+        fields = ['id', 'country','country_name', 'name', 'description']
 
     def get_country_name(self, obj):
         show_country_name = self.context.get('show_country_name', True)
 
         if show_country_name:
-            return obj.country_id.name
+            return obj.country.name
         
         return None 
     
@@ -25,10 +25,10 @@ class StateSerializer(serializers.ModelSerializer):
         return name
     
     def validate(self, data):
-        country_id = data.get('country_id')
+        country = data.get('country')
         name = data.get('name')
 
-        if State.objects.filter(country_id=country_id, name=name).exists():
+        if State.objects.filter(country = country, name=name).exists():
             raise serializers.ValidationError("State with this name already exists in the specified country.")
         
         return data
