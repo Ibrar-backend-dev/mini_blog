@@ -30,3 +30,11 @@ class CitySerializer(serializers.ModelSerializer):
             return obj.state.country.name
 
         return None
+    
+
+# Nested serializer for  countries to get its cities associated with related states
+class CountryCitySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = City
+        fields = ["id" , "name"]

@@ -26,4 +26,5 @@ urlpatterns = [
     path('countries/', include('apps.country.urls')),  
     path('states/', include('apps.state.urls')),
     path('cities/', include('apps.city.urls')),
+    path('address/', include('apps.address.urls'))
 ]

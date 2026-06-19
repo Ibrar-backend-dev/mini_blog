@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import State
 
+from apps.city.serializers import CountryCitySerializer
+
 class StateSerializer(serializers.ModelSerializer):
     
     country_name = serializers.SerializerMethodField() 
@@ -32,3 +34,10 @@ class StateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("State with this name already exists in the specified country.")
         
         return data
+    
+# Nested serializer for  countries to get its related states
+class CountryStateSerializer(serializers.ModelSerializer):
+    cities = CountryCitySerializer(many = True , read_only = True)
+
+    class Meta:
+        fields = ["id" , "name" ,"cities"]

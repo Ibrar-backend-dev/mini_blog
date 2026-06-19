@@ -1,19 +1,24 @@
 ﻿from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from django.core.exceptions import ValidationError
 
+from apps.address.serializers import AddressSerializer
+from apps.address.models import Address
 
 from .services import authenticate_user
 from .services import create_user 
+
 User = get_user_model()
 
 class SignupSerializer(serializers.ModelSerializer):
+
     password = serializers.CharField(write_only=True , min_length= 8 , required=True)
     password_confirm = serializers.CharField(write_only = True, required=True)
 
+    address = AddressSerializer(required = False, allow_null = True)
+
     class Meta:
         model = User
-        fields = ('username','email','password','password_confirm')
+        fields = ['username','email','password','password_confirm','address']
 
 # email validation
     def validate_email(self,value):
@@ -40,6 +45,14 @@ class SignupSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
 
+class UserProfileSerializer(serializers.ModelSerializer):
+    address = AddressSerializer(read_only = True)
+
+    class Meta:
+        model = User
+        fields = ['id','first_name', 'last_name', 'username','email','is_email_verified','address',]
+
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
@@ -54,9 +67,3 @@ class LoginSerializer(serializers.Serializer):
         attrs["user"] = user
 
         return attrs
-
-
-        
-
-
-

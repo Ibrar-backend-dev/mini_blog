@@ -20,3 +20,5 @@ class Address(models.Model):
         City, on_delete=models.PROTECT, related_name='addresses'
         )
     postal_code = models.CharField(max_length=20, blank=True)
+
+    
