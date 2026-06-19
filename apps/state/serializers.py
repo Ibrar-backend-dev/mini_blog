@@ -40,4 +40,5 @@ class CountryStateSerializer(serializers.ModelSerializer):
     cities = CountryCitySerializer(many = True , read_only = True)
 
     class Meta:
+        model = State
         fields = ["id" , "name" ,"cities"]
