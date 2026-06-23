@@ -41,3 +41,5 @@ class PostViewSet(ModelViewSet):
             {"message": "your message is deleted"},
             status=status.HTTP_200_OK,
         )
+    
+class PostViewSetv2(APIVIEW):
