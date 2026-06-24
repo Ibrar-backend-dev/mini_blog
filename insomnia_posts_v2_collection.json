@@ -1,0 +1,179 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-06-24T00:00:00.000Z",
+  "__export_source": "codex",
+  "resources": [
+    {
+      "_id": "wrk_posts_v2",
+      "_type": "workspace",
+      "name": "Mini Blog Posts V2 API",
+      "description": "Insomnia collection for the APIView-based post CRUD endpoints only."
+    },
+    {
+      "_id": "fld_posts_v2",
+      "_type": "request_group",
+      "parentId": "wrk_posts_v2",
+      "name": "Posts V2",
+      "description": "APIView CRUD endpoints only.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_posts_v2_list",
+      "_type": "request",
+      "parentId": "fld_posts_v2",
+      "name": "List Posts V2",
+      "description": "Anonymous users see public posts. Authenticated users also see their own private posts.",
+      "url": "{{ _.base_url }}/posts/v2/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}",
+        "disabled": true
+      },
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_posts_v2_create",
+      "_type": "request",
+      "parentId": "fld_posts_v2",
+      "name": "Create Post V2",
+      "description": "Requires a Bearer token.",
+      "url": "{{ _.base_url }}/posts/v2/",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"My first post\",\n  \"content\": \"This is the post content.\",\n  \"is_private\": false\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 300
+    },
+    {
+      "_id": "req_posts_v2_retrieve",
+      "_type": "request",
+      "parentId": "fld_posts_v2",
+      "name": "Retrieve Post V2",
+      "description": "Uses the post_id environment variable.",
+      "url": "{{ _.base_url }}/posts/v2/{{ _.post_id }}/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}",
+        "disabled": true
+      },
+      "metaSortKey": 400
+    },
+    {
+      "_id": "req_posts_v2_update",
+      "_type": "request",
+      "parentId": "fld_posts_v2",
+      "name": "Update Post V2",
+      "description": "Full update. Only the author can update.",
+      "url": "{{ _.base_url }}/posts/v2/{{ _.post_id }}/",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Updated post title\",\n  \"content\": \"Updated post content.\",\n  \"is_private\": false\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 500
+    },
+    {
+      "_id": "req_posts_v2_patch",
+      "_type": "request",
+      "parentId": "fld_posts_v2",
+      "name": "Partial Update Post V2",
+      "description": "Partial update. Only the author can update.",
+      "url": "{{ _.base_url }}/posts/v2/{{ _.post_id }}/",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Partially updated title\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 600
+    },
+    {
+      "_id": "req_posts_v2_delete",
+      "_type": "request",
+      "parentId": "fld_posts_v2",
+      "name": "Delete Post V2",
+      "description": "Only the author can delete.",
+      "url": "{{ _.base_url }}/posts/v2/{{ _.post_id }}/",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 700
+    }
+  ]
+}
