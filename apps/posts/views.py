@@ -1,9 +1,10 @@
-﻿
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.views import APIView
+# from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import action
 
 from django.db.models import Q
 
@@ -12,194 +13,213 @@ from .models import Post
 from.serializers import PostSerializer
 
 class PostViewSet(ModelViewSet):
-    
-    # filter posts by author id
+
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsPostAuthorOrReadOnly] 
+   # filter posts by author id
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['author']
 
-    serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsPostAuthorOrReadOnly]
+
 
     def get_queryset(self):
         user = self.request.user
 
         if user.is_authenticated:
-            return Post.objects.filter(
+            queryset = Post.objects.filter(
                 Q(is_private = False)|Q(author=user)
-                ).order_by('-created_at')
-        
-        return Post.objects.filter(
-            is_private = False
-            ).order_by('-created_at')
+            )
+        else:
+            queryset = Post.objects.filter(is_private=False) 
+        return queryset.prefetch_related("media").order_by("-created_at")
 
     def perform_create(self, serializer):
-
         serializer.save(author = self.request.user)
 
     def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
 
+        instance = self.get_object()                 # get post id to be deleted
         self.perform_destroy(instance)
         return Response(
             {"message": "your message is deleted"},
             status=status.HTTP_200_OK,
         )
     
-class PostViewSetv2(APIView):
+    @action(detail=True, methods= ["post","delete"], permission_classes= [permissions.IsAuthenticated],url_path="like")
 
-    def get(self , request):                      
-        posts = Post.objects.all()              #get all posts 
+    def like(self, request , *args , **kwargs):
+        post = self.get_object()
+
+        if request.method=="POST":
+            post.likes.add(request.user)
+        else:
+            post.likes.remove(request.user)
+
+        return Response(
+    {
+        "likes_count": post.likes.count(),
+        "is_liked": post.likes.filter(id=request.user.id).exists(),
+    },status=status.HTTP_200_OK
+)
+
+
+# class PostViewSetv2(APIView):
+
+#     def get(self , request):                      
+#         posts = Post.objects.all()              #get all posts 
        
-        visible_posts=[]                        # empty list 
+#         visible_posts=[]                        # empty list 
 
-        for post in posts:                      # loop through posts
+#         for post in posts:                      # loop through posts
 
-            if not post.is_private :                  #public posts 
-                visible_posts.append(post)
+#             if not post.is_private :                  #public posts 
+#                 visible_posts.append(post)
 
-            elif request.user.is_authenticated:               # Own private post  
-                if post.author_id == request.user.id:
-                    visible_posts.append(post)
+#             elif request.user.is_authenticated:               # Own private post  
+#                 if post.author_id == request.user.id:
+#                     visible_posts.append(post)
 
-        serializer = PostSerializer(visible_posts, many = True)         #serialize list
+#         serializer = PostSerializer(visible_posts, many = True)         #serialize list
 
-        return Response(serializer.data , status=status.HTTP_200_OK)
+#         return Response(serializer.data , status=status.HTTP_200_OK)
 
 
-    def post(self , request):
-        if not request.user.is_authenticated :              # check logged in user
-            return Response(
-               {"message" : "User is not logged in." }, status=status.HTTP_401_UNAUTHORIZED
-            )
+#     def post(self , request):
+#         if not request.user.is_authenticated :              # check logged in user
+#             return Response(
+#                {"message" : "User is not logged in." }, status=status.HTTP_401_UNAUTHORIZED
+#             )
        
         
 
-        serializer = PostSerializer(data = request.data)            # put data in serializer
+#         serializer = PostSerializer(data = request.data)            # put data in serializer
 
-        if serializer.is_valid():           # validate serializer
+#         if serializer.is_valid():           # validate serializer
 
-            serializer.save(author=request.user)        # save post with user as author 
+#             serializer.save(author=request.user)        # save post with user as author 
 
-            return Response(
-                serializer.data , status=status.HTTP_201_CREATED
-            )
-        return Response(
-            serializer.errors , status=status.HTTP_400_BAD_REQUEST
-        )
+#             return Response(
+#                 serializer.data , status=status.HTTP_201_CREATED
+#             )
+#         return Response(
+#             serializer.errors , status=status.HTTP_400_BAD_REQUEST
+#         )
 
 
-class PostDetailViewSetv2(APIView):
+# class PostDetailViewSetv2(APIView):
      
-    def get(self , request , pk):
+#     def get(self , request , pk):
 
-        try:
-            post = Post.objects.get(pk=pk)           # find post by id
-        except Post.DoesNotExist:
-            return Response(
-                {"message":f"Post with post id {pk} does not exists."} , status=status.HTTP_404_NOT_FOUND
-            )
+#         try:
+#             post = Post.objects.get(pk=pk)           # find post by id
+#         except Post.DoesNotExist:
+#             return Response(
+#                 {"message":f"Post with post id {pk} does not exists."} , status=status.HTTP_404_NOT_FOUND
+#             )
         
-        if post.is_private:             #check if post is private or not 
+#         if post.is_private:             #check if post is private or not 
 
-            if request.user != post.author:                #check requested user is author 
-                return Response(
-                    {"message":"You do not have permission to see this post."}, status=status.HTTP_403_FORBIDDEN
-                )
+#             if request.user != post.author:                #check requested user is author 
+#                 return Response(
+#                     {"message":"You do not have permission to see this post."}, status=status.HTTP_403_FORBIDDEN
+#                 )
             
-        serializer= PostSerializer(post)            #serialize post
+#         serializer= PostSerializer(post)            #serialize post
 
-        return Response(
-            serializer.data ,status=status.HTTP_200_OK
-        )
+#         return Response(
+#             serializer.data ,status=status.HTTP_200_OK
+#         )
             
 
-    def put(self , request , pk ):
+#     def put(self , request , pk ):
                                                     
-        if not request.user.is_authenticated :        # check logged in user
-            return Response(
-               {"message" : "User is not logged in." }, status=status.HTTP_401_UNAUTHORIZED
-            )
+#         if not request.user.is_authenticated :        # check logged in user
+#             return Response(
+#                {"message" : "User is not logged in." }, status=status.HTTP_401_UNAUTHORIZED
+#             )
         
-        try:
-            post = Post.objects.get(pk=pk)           # find post by id
+#         try:
+#             post = Post.objects.get(pk=pk)           # find post by id
 
-        except Post.DoesNotExist:
-            return Response(
-                {"message":"Does not exists."} , status=status.HTTP_404_NOT_FOUND
-            )
+#         except Post.DoesNotExist:
+#             return Response(
+#                 {"message":"Does not exists."} , status=status.HTTP_404_NOT_FOUND
+#             )
         
-        if request.user != post.author:                #check requested user is author 
-            return Response(
-                    {"message":"You do not have permission to update this post."}, status=status.HTTP_403_FORBIDDEN
-                )
+#         if request.user != post.author:                #check requested user is author 
+#             return Response(
+#                     {"message":"You do not have permission to update this post."}, status=status.HTTP_403_FORBIDDEN
+#                 )
         
-        serializer= PostSerializer(post , data =request.data)      # old and new data for update
+#         serializer= PostSerializer(post , data =request.data)      # old and new data for update
 
-        if serializer.is_valid():               # serializer validation 
+#         if serializer.is_valid():               # serializer validation 
 
-            serializer.save()               # save updated data
-            return Response(
-                serializer.data , status=status.HTTP_200_OK
-            )
-        return Response(
-                serializer.errors , status= status.HTTP_400_BAD_REQUEST
-        )
+#             serializer.save()               # save updated data
+#             return Response(
+#                 serializer.data , status=status.HTTP_200_OK
+#             )
+#         return Response(
+#                 serializer.errors , status= status.HTTP_400_BAD_REQUEST
+#         )
     
-    def patch(self , request , pk):
+#     def patch(self , request , pk):
 
-        if not request.user.is_authenticated :        # check logged in user
-            return Response(
-               {"message" : "User is not logged in." }, status=status.HTTP_401_UNAUTHORIZED
-            )
+#         if not request.user.is_authenticated :        # check logged in user
+#             return Response(
+#                {"message" : "User is not logged in." }, status=status.HTTP_401_UNAUTHORIZED
+#             )
         
-        try:
-            post = Post.objects.get(pk=pk)           # find post by id
+#         try:
+#             post = Post.objects.get(pk=pk)           # find post by id
 
-        except Post.DoesNotExist:
-            return Response(
-                {"message":"Does not exists."} , status=status.HTTP_404_NOT_FOUND
-            )
+#         except Post.DoesNotExist:
+#             return Response(
+#                 {"message":"Does not exists."} , status=status.HTTP_404_NOT_FOUND
+#             )
         
-        if request.user != post.author:                #check requested user is author 
-            return Response(
-                    {"message":"You do not have permission to update this post."}, status=status.HTTP_403_FORBIDDEN
-                )
+#         if request.user != post.author:                #check requested user is author 
+#             return Response(
+#                     {"message":"You do not have permission to update this post."}, status=status.HTTP_403_FORBIDDEN
+#                 )
         
-        serializer= PostSerializer(post , data =request.data , partial=True)      # old and new data for update
+#         serializer= PostSerializer(post , data =request.data , partial=True)      # old and new data for update
 
-        if serializer.is_valid():               # serializer validation 
+#         if serializer.is_valid():               # serializer validation 
 
-            serializer.save()               # save updated data
-            return Response(
-                serializer.data , status=status.HTTP_200_OK
-            )
-        return Response(
-                serializer.errors , status= status.HTTP_400_BAD_REQUEST
-            )
+#             serializer.save()               # save updated data
+#             return Response(
+#                 serializer.data , status=status.HTTP_200_OK
+#             )
+#         return Response(
+#                 serializer.errors , status= status.HTTP_400_BAD_REQUEST
+#             )
     
-    def delete(self , request , pk):
+#     def delete(self , request , pk):
 
-        if not request.user.is_authenticated :        # check logged in user
-            return Response(
-               {"message" : "User is not logged in." }, status=status.HTTP_401_UNAUTHORIZED
-            )
+#         if not request.user.is_authenticated :        # check logged in user
+#             return Response(
+#                {"message" : "User is not logged in." }, status=status.HTTP_401_UNAUTHORIZED
+#             )
         
-        try:
-            post = Post.objects.get(pk=pk)           # find post by id
+#         try:
+#             post = Post.objects.get(pk=pk)           # find post by id
 
-        except Post.DoesNotExist:
-            return Response(
-                {"message":"Does not exists."} , status=status.HTTP_404_NOT_FOUND
-            )
+#         except Post.DoesNotExist:
+#             return Response(
+#                 {"message":"Does not exists."} , status=status.HTTP_404_NOT_FOUND
+#             )
         
-        if request.user != post.author:                #check ownership of post 
-            return Response(
-                    {"message":"You do not have permission to delete this post."}, status=status.HTTP_403_FORBIDDEN
-                )
+#         if request.user != post.author:                #check ownership of post 
+#             return Response(
+#                     {"message":"You do not have permission to delete this post."}, status=status.HTTP_403_FORBIDDEN
+#                 )
         
-        post.delete()                   # delete the post
+#         post.delete()                   # delete the post
 
-        return Response(
-            {"message":"Your post is deleted successfully."}, status=status.HTTP_200_OK
-        )
+#         return Response(
+#             {"message":"Your post is deleted successfully."}, status=status.HTTP_200_OK
+#         )
     

@@ -5,12 +5,13 @@ from django.contrib.auth import get_user_model
 from django.core import signing
 from .utils import decode_verification_token
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from apps.address.serializers import AddressSerializer
-from apps.address.models import Address
+
 
 from .services import send_verification_email
-from .serializers import SignupSerializer, LoginSerializer, UserProfileSerializer
+from .serializers import ProfilePhotoSerializer, SignupSerializer, LoginSerializer, UserProfileSerializer
 
 User = get_user_model()
 
@@ -150,3 +151,35 @@ class ProfileView(APIView):
         serializer.save()
         return Response(serializer.data)
 
+class ProfilePhotoView(APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    def patch(self,request):
+
+        serializer = ProfilePhotoSerializer(request.user , data = request.data , partial =True)
+        serializer.is_valid(raise_exception=True)
+
+        if request.user.profile_photo:
+            request.user.profile_photo.delete(save=False)
+        
+        serializer.save()
+        return Response(
+            UserProfileSerializer(request.user).data , status=status.HTTP_200_OK
+        )
+
+
+    def delete(self,request):
+        if not request.user.profile_photo:
+            return Response(
+                {"error": "Profile photo does not exist."},status=status.HTTP_404_NOT_FOUND
+            )
+        
+        request.user.profile_photo.delete(save=False)
+        request.user.profile_photo = None
+        request.user.save(update_fields =["profile_photo"])
+
+        return Response(
+            {"message":"Profile photo deleted successfully."},status=status.HTTP_200_OK
+        )
+    

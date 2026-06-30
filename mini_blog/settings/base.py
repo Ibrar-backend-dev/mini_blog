@@ -25,6 +25,7 @@ ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 AUTH_USER_MODEL = 'users.User'
 
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -139,6 +140,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 # Email Configuration
 # Use console backend for development, SMTP for production
 if DEBUG:
@@ -164,3 +168,4 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
