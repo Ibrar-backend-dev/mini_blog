@@ -131,18 +131,19 @@ class ProfileView(APIView):
         """Delete user address"""
         user = request.user
 
-        if user.address:
-            user.address.delete()
-            user.address=None
-            user.save()
+        if not user.address:
             return Response(
-                {"message": "Address deleted successfully."},
-                status=status.HTTP_204_NO_CONTENT
+                {"error": "User has no address to delete."},
+                status=status.HTTP_404_NOT_FOUND
             )
+        address = user.address
+        user.address = None
+        user.save(update_fields=["address"])
+        address.delete()
         return Response(
-            {"error": "User has no address to delete."},
-            status=status.HTTP_404_NOT_FOUND
-        )
+            {"message": "Address deleted successfully."},
+                status=status.HTTP_200_OK
+            )
 
     def patch(self, request):
 

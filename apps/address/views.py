@@ -33,7 +33,7 @@ class AddressViewSet(ModelViewSet):
     def perform_update(self, serializer):
         """Ensure user can only update their own addresses"""
         address = self.get_object()
-        if address.id == self.request.user.address:
+        if address.id == self.request.user.address_id:
             serializer.save()
         else:
             raise PermissionDenied("You don't have permission to update this address.")

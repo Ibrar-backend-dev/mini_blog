@@ -1,14 +1,14 @@
-﻿{
+{
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2026-06-16T00:00:00.000Z",
+  "__export_date": "2026-07-01T00:00:00.000Z",
   "__export_source": "codex",
   "resources": [
     {
       "_id": "wrk_mini_blog",
       "_type": "workspace",
       "name": "Mini Blog API",
-      "description": "Insomnia collection for the Mini Blog Django REST API"
+      "description": "Insomnia collection for the current Mini Blog Django REST API."
     },
     {
       "_id": "env_base",
@@ -17,29 +17,44 @@
       "name": "Base Environment",
       "data": {
         "base_url": "http://localhost:8000",
+        "signup_username": "demo_user",
+        "signup_email": "demo@example.com",
+        "signup_password": "StrongPass123!",
+        "verification_token": "",
         "access_token": "",
         "refresh_token": "",
-        "verification_token": "",
-        "post_id": "1",
-        "comment_id": "1",
-        "author_id": "1",
-        "country_id": "2",
-        "state_id": "1",
-        "city_id": "1",
-        "address_id": "1"
+        "author_id": "",
+        "post_id": "",
+        "comment_id": "",
+        "country_id": "",
+        "state_id": "",
+        "city_id": "",
+        "address_id": "",
+        "profile_photo_path": "C:/path/to/profile-photo.png",
+        "post_media_file_1": "C:/path/to/post-image-1.png",
+        "post_media_file_2": "",
+        "post_media_file_3": ""
       },
       "dataPropertyOrder": {
         "&": [
           "base_url",
+          "signup_username",
+          "signup_email",
+          "signup_password",
+          "verification_token",
           "access_token",
           "refresh_token",
-          "verification_token",
+          "author_id",
           "post_id",
           "comment_id",
-          "author_id",
           "country_id",
           "state_id",
-          "city_id"
+          "city_id",
+          "address_id",
+          "profile_photo_path",
+          "post_media_file_1",
+          "post_media_file_2",
+          "post_media_file_3"
         ]
       },
       "color": null,
@@ -77,323 +92,6 @@
       "metaSortKey": 300
     },
     {
-      "_id": "req_auth_signup",
-      "_type": "request",
-      "parentId": "fld_auth",
-      "name": "Signup",
-      "description": "Creates a user and sends an email verification link. In development, the email is printed to the Django console.",
-      "url": "{{ _.base_url }}/auth/signup/",
-      "method": "POST",
-      "body": {
-        "mimeType": "application/json",
-        "text": "{\n  \"username\": \"demo_user\",\n  \"email\": \"demo@example.com\",\n  \"password\": \"StrongPass123!\",\n  \"password_confirm\": \"StrongPass123!\"\n}"
-      },
-      "parameters": [],
-      "headers": [
-        {
-          "name": "Content-Type",
-          "value": "application/json"
-        },
-        {
-          "name": "Accept",
-          "value": "application/json"
-        }
-      ],
-      "authentication": {},
-      "metaSortKey": 100
-    },
-    {
-      "_id": "req_auth_verify_email",
-      "_type": "request",
-      "parentId": "fld_auth",
-      "name": "Verify Email",
-      "description": "Paste the token from the development console email into the verification_token environment variable.",
-      "url": "{{ _.base_url }}/auth/verify-email/{{ _.verification_token }}/",
-      "method": "GET",
-      "body": {},
-      "parameters": [],
-      "headers": [
-        {
-          "name": "Accept",
-          "value": "application/json"
-        }
-      ],
-      "authentication": {},
-      "metaSortKey": 200
-    },
-    {
-      "_id": "fld_address",
-      "_type": "request_group",
-      "parentId": "wrk_mini_blog",
-      "name": "Address",
-      "description": "User address management",
-      "environment": {},
-      "environmentPropertyOrder": null,
-      "metaSortKey": 700
-    },
-    {
-      "_id": "req_address_list",
-        "_type": "request",
-        "parentId": "fld_address",
-        "name": "List Addresses",
-        "description": "List the current user's address (if any).",
-        "url": "{{ _.base_url }}/address/",
-        "method": "GET",
-        "body": {},
-        "parameters": [],
-        "headers": [
-          {
-            "name": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "authentication": {
-          "type": "bearer",
-          "token": "{{ _.access_token }}"
-        },
-        "metaSortKey": 100
-      },
-      {
-        "_id": "req_address_create",
-        "_type": "request",
-        "parentId": "fld_address",
-        "name": "Create Address",
-        "description": "Create or set user's address (will be linked to profile).",
-        "url": "{{ _.base_url }}/address/",
-        "method": "POST",
-        "body": {
-          "mimeType": "application/json",
-          "text": "{\n  \"permanent_address\": \"123 Main St\",\n  \"residential_address\": \"Apartment 4\",\n  \"country\": {{ _.country_id }},\n  \"state\": {{ _.state_id }},\n  \"city\": {{ _.city_id }},\n  \"postal_code\": \"54000\"\n}"
-        },
-        "parameters": [],
-        "headers": [
-          {
-            "name": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "name": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "authentication": {
-          "type": "bearer",
-          "token": "{{ _.access_token }}"
-        },
-        "metaSortKey": 200
-      },
-      {
-        "_id": "req_address_retrieve",
-        "_type": "request",
-        "parentId": "fld_address",
-        "name": "Retrieve Address",
-        "description": "Retrieve address by id (use address_id variable).",
-        "url": "{{ _.base_url }}/address/{{ _.address_id }}/",
-        "method": "GET",
-        "body": {},
-        "parameters": [],
-        "headers": [
-          {
-            "name": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "authentication": {
-          "type": "bearer",
-          "token": "{{ _.access_token }}"
-        },
-        "metaSortKey": 300
-      },
-      {
-        "_id": "req_address_update",
-        "_type": "request",
-        "parentId": "fld_address",
-        "name": "Update Address",
-        "description": "Full update of the user's address.",
-        "url": "{{ _.base_url }}/address/{{ _.address_id }}/",
-        "method": "PUT",
-        "body": {
-          "mimeType": "application/json",
-          "text": "{\n  \"permanent_address\": \"456 New St\",\n  \"residential_address\": \"House\",\n  \"country\": {{ _.country_id }},\n  \"state\": {{ _.state_id }},\n  \"city\": {{ _.city_id }},\n  \"postal_code\": \"54001\"\n}"
-        },
-        "parameters": [],
-        "headers": [
-          {
-            "name": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "name": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "authentication": {
-          "type": "bearer",
-          "token": "{{ _.access_token }}"
-        },
-        "metaSortKey": 400
-      },
-      {
-        "_id": "req_address_partial_update",
-        "_type": "request",
-        "parentId": "fld_address",
-        "name": "Partial Update Address",
-        "description": "Partial update of the user's address.",
-        "url": "{{ _.base_url }}/address/{{ _.address_id }}/",
-        "method": "PATCH",
-        "body": {
-          "mimeType": "application/json",
-          "text": "{\n  \"postal_code\": \"54002\"\n}"
-        },
-        "parameters": [],
-        "headers": [
-          {
-            "name": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "name": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "authentication": {
-          "type": "bearer",
-          "token": "{{ _.access_token }}"
-        },
-        "metaSortKey": 500
-      },
-      {
-        "_id": "req_address_delete",
-        "_type": "request",
-        "parentId": "fld_address",
-        "name": "Delete Address",
-        "description": "Delete the user's address (or address by id).",
-        "url": "{{ _.base_url }}/address/{{ _.address_id }}/",
-        "method": "DELETE",
-        "body": {},
-        "parameters": [],
-        "headers": [
-          {
-            "name": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "authentication": {
-          "type": "bearer",
-          "token": "{{ _.access_token }}"
-        },
-        "metaSortKey": 600
-      },
-      {
-        "_id": "req_profile_update",
-        "_type": "request",
-        "parentId": "fld_auth",
-        "name": "Profile Update (PUT)",
-        "description": "Update or create the authenticated user's address via profile endpoint.",
-        "url": "{{ _.base_url }}/auth/profile/",
-        "method": "PUT",
-        "body": {
-          "mimeType": "application/json",
-          "text": "{\n  \"address\": {\n    \"permanent_address\": \"123 Main St\",\n    \"residential_address\": \"Apartment 1\",\n    \"country\": {{ _.country_id }},\n    \"state\": {{ _.state_id }},\n    \"city\": {{ _.city_id }},\n    \"postal_code\": \"54000\"\n  }\n}"
-        },
-        "parameters": [],
-        "headers": [
-          {
-            "name": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "name": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "authentication": {
-          "type": "bearer",
-          "token": "{{ _.access_token }}"
-        },
-        "metaSortKey": 410
-      },
-      {
-        "_id": "req_profile_partial_update",
-        "_type": "request",
-        "parentId": "fld_auth",
-        "name": "Profile Partial Update (PATCH)",
-        "description": "Partial update of user's profile (or nested address).",
-        "url": "{{ _.base_url }}/auth/profile/",
-        "method": "PATCH",
-        "body": {
-          "mimeType": "application/json",
-          "text": "{\n  \"first_name\": \"Ibrar\",\n  \"last_name\": \"Shahzad\"\n}"
-        },
-        "parameters": [],
-        "headers": [
-          {
-            "name": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "name": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "authentication": {
-          "type": "bearer",
-          "token": "{{ _.access_token }}"
-        },
-        "metaSortKey": 420
-      },
-      {
-        "_id": "req_profile_delete_address",
-        "_type": "request",
-        "parentId": "fld_auth",
-        "name": "Profile Delete Address",
-        "description": "Delete the authenticated user's address using profile endpoint.",
-        "url": "{{ _.base_url }}/auth/profile/",
-        "method": "DELETE",
-        "body": {},
-        "parameters": [],
-        "headers": [
-          {
-            "name": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "authentication": {
-          "type": "bearer",
-          "token": "{{ _.access_token }}"
-        },
-        "metaSortKey": 430
-      },
-    {
-      "_id": "req_auth_login",
-      "_type": "request",
-      "parentId": "fld_auth",
-      "name": "Login",
-      "description": "Copies the returned access and refresh values into the access_token and refresh_token environment variables.",
-      "url": "{{ _.base_url }}/auth/login/",
-      "method": "POST",
-      "body": {
-        "mimeType": "application/json",
-        "text": "{\n  \"email\": \"demo@example.com\",\n  \"password\": \"StrongPass123!\"\n}"
-      },
-      "parameters": [],
-      "headers": [
-        {
-          "name": "Content-Type",
-          "value": "application/json"
-        },
-        {
-          "name": "Accept",
-          "value": "application/json"
-        }
-      ],
-      "authentication": {},
-      "script": {
-        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.access) {\n  await insomnia.environment.set('access_token', data.access);\n}\n\nif (data.refresh) {\n  await insomnia.environment.set('refresh_token', data.refresh);\n}\n"
-      },
-      "metaSortKey": 300
-    },
-    {
       "_id": "fld_countries",
       "_type": "request_group",
       "parentId": "wrk_mini_blog",
@@ -424,11 +122,98 @@
       "metaSortKey": 600
     },
     {
+      "_id": "fld_address",
+      "_type": "request_group",
+      "parentId": "wrk_mini_blog",
+      "name": "Address",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 700
+    },
+    {
+      "_id": "req_auth_signup",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Signup",
+      "description": "Creates a user and sends the verification link to the configured email backend. In local DEBUG mode, copy the token from the console email into verification_token.",
+      "url": "{{ _.base_url }}/auth/signup/",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"{{ _.signup_username }}\",\n  \"email\": \"{{ _.signup_email }}\",\n  \"password\": \"{{ _.signup_password }}\",\n  \"password_confirm\": \"{{ _.signup_password }}\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.user_id) {\n  await insomnia.environment.set('author_id', String(data.user_id));\n}\n"
+      },
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_auth_verify_email",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Verify Email",
+      "description": "Uses the verification_token environment variable from the console email link.",
+      "url": "{{ _.base_url }}/auth/verify-email/{{ _.verification_token }}/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 200
+    },
+    {
+      "_id": "req_auth_login",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login",
+      "description": "Stores access_token and refresh_token for the rest of the collection.",
+      "url": "{{ _.base_url }}/auth/login/",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"{{ _.signup_email }}\",\n  \"password\": \"{{ _.signup_password }}\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.access) {\n  await insomnia.environment.set('access_token', data.access);\n}\n\nif (data.refresh) {\n  await insomnia.environment.set('refresh_token', data.refresh);\n}\n"
+      },
+      "metaSortKey": 300
+    },
+    {
       "_id": "req_auth_profile",
       "_type": "request",
       "parentId": "fld_auth",
-      "name": "Profile",
-      "description": "Requires a Bearer access token.",
+      "name": "Get Profile",
+      "description": "Returns the authenticated user's profile and syncs author_id and address_id.",
       "url": "{{ _.base_url }}/auth/profile/",
       "method": "GET",
       "body": {},
@@ -443,14 +228,156 @@
         "type": "bearer",
         "token": "{{ _.access_token }}"
       },
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.id) {\n  await insomnia.environment.set('author_id', String(data.id));\n}\n\nif (data.address && data.address.id) {\n  await insomnia.environment.set('address_id', String(data.address.id));\n}\n"
+      },
       "metaSortKey": 400
+    },
+    {
+      "_id": "req_profile_patch",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Patch Profile",
+      "description": "Updates first_name and last_name on the authenticated user.",
+      "url": "{{ _.base_url }}/auth/profile/",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"first_name\": \"Demo\",\n  \"last_name\": \"User\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 500
+    },
+    {
+      "_id": "req_profile_put_address",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Put Profile Address",
+      "description": "Creates or replaces the authenticated user's linked address and syncs address_id.",
+      "url": "{{ _.base_url }}/auth/profile/",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"address\": {\n    \"permanent_address\": \"123 Main Street\",\n    \"residential_address\": \"Apartment 4B\",\n    \"country\": {{ _.country_id }},\n    \"state\": {{ _.state_id }},\n    \"city\": {{ _.city_id }},\n    \"postal_code\": \"54000\"\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.address && data.address.id) {\n  await insomnia.environment.set('address_id', String(data.address.id));\n}\n"
+      },
+      "metaSortKey": 600
+    },
+    {
+      "_id": "req_profile_delete_address",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Delete Profile Address",
+      "description": "Deletes the address linked to the authenticated user.",
+      "url": "{{ _.base_url }}/auth/profile/",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "script": {
+        "after-response": "await insomnia.environment.set('address_id', '');\n"
+      },
+      "metaSortKey": 700
+    },
+    {
+      "_id": "req_profile_photo_patch",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Patch Profile Photo",
+      "description": "Set profile_photo_path first. Accepts JPEG, PNG, or WEBP up to 2 MB.",
+      "url": "{{ _.base_url }}/auth/profile/photo/",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          {
+            "name": "profile_photo",
+            "type": "file",
+            "fileName": "{{ _.profile_photo_path }}"
+          }
+        ]
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 800
+    },
+    {
+      "_id": "req_profile_photo_delete",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Delete Profile Photo",
+      "description": "Deletes the authenticated user's profile photo.",
+      "url": "{{ _.base_url }}/auth/profile/photo/",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 900
     },
     {
       "_id": "req_posts_list",
       "_type": "request",
       "parentId": "fld_posts",
       "name": "List Posts",
-      "description": "Anonymous users see public posts. Authenticated users see public posts and their own private posts.",
+      "description": "Public users see public posts. Enable Bearer auth if you want your own private posts included.",
       "url": "{{ _.base_url }}/posts/",
       "method": "GET",
       "body": {},
@@ -473,7 +400,7 @@
       "_type": "request",
       "parentId": "fld_posts",
       "name": "List Posts by Author",
-      "description": "Uses django-filter on the author id.",
+      "description": "Uses the author_id environment variable.",
       "url": "{{ _.base_url }}/posts/",
       "method": "GET",
       "body": {},
@@ -498,11 +425,11 @@
       "metaSortKey": 200
     },
     {
-      "_id": "req_posts_create",
+      "_id": "req_posts_create_json",
       "_type": "request",
       "parentId": "fld_posts",
-      "name": "Create Post",
-      "description": "Requires authentication.",
+      "name": "Create Post JSON",
+      "description": "Creates a plain post and syncs post_id.",
       "url": "{{ _.base_url }}/posts/",
       "method": "POST",
       "body": {
@@ -524,7 +451,68 @@
         "type": "bearer",
         "token": "{{ _.access_token }}"
       },
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.id) {\n  await insomnia.environment.set('post_id', String(data.id));\n}\n"
+      },
       "metaSortKey": 300
+    },
+    {
+      "_id": "req_posts_create_media",
+      "_type": "request",
+      "parentId": "fld_posts",
+      "name": "Create Post With Media",
+      "description": "Set post_media_file_1 and optionally _2/_3 first. Allowed media: jpeg, png, webp, mp4, webm. Max 3 files.",
+      "url": "{{ _.base_url }}/posts/",
+      "method": "POST",
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          {
+            "name": "title",
+            "value": "Post with media"
+          },
+          {
+            "name": "content",
+            "value": "This post was created with multipart media uploads."
+          },
+          {
+            "name": "is_private",
+            "value": "false"
+          },
+          {
+            "name": "uploaded_files",
+            "type": "file",
+            "fileName": "{{ _.post_media_file_1 }}"
+          },
+          {
+            "name": "uploaded_files",
+            "type": "file",
+            "fileName": "{{ _.post_media_file_2 }}",
+            "disabled": true
+          },
+          {
+            "name": "uploaded_files",
+            "type": "file",
+            "fileName": "{{ _.post_media_file_3 }}",
+            "disabled": true
+          }
+        ]
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.id) {\n  await insomnia.environment.set('post_id', String(data.id));\n}\n"
+      },
+      "metaSortKey": 400
     },
     {
       "_id": "req_posts_retrieve",
@@ -547,14 +535,17 @@
         "token": "{{ _.access_token }}",
         "disabled": true
       },
-      "metaSortKey": 400
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.id) {\n  await insomnia.environment.set('post_id', String(data.id));\n}\n"
+      },
+      "metaSortKey": 500
     },
     {
       "_id": "req_posts_update",
       "_type": "request",
       "parentId": "fld_posts",
       "name": "Update Post",
-      "description": "Full update. Only the post author can update.",
+      "description": "Only the author can fully update the post.",
       "url": "{{ _.base_url }}/posts/{{ _.post_id }}/",
       "method": "PUT",
       "body": {
@@ -576,14 +567,14 @@
         "type": "bearer",
         "token": "{{ _.access_token }}"
       },
-      "metaSortKey": 500
+      "metaSortKey": 600
     },
     {
-      "_id": "req_posts_partial_update",
+      "_id": "req_posts_patch",
       "_type": "request",
       "parentId": "fld_posts",
-      "name": "Partial Update Post",
-      "description": "Partial update. Only the post author can update.",
+      "name": "Patch Post",
+      "description": "Only the author can partially update the post.",
       "url": "{{ _.base_url }}/posts/{{ _.post_id }}/",
       "method": "PATCH",
       "body": {
@@ -605,14 +596,58 @@
         "type": "bearer",
         "token": "{{ _.access_token }}"
       },
-      "metaSortKey": 600
+      "metaSortKey": 700
+    },
+    {
+      "_id": "req_posts_like",
+      "_type": "request",
+      "parentId": "fld_posts",
+      "name": "Like Post",
+      "description": "Likes the selected post and returns likes_count / is_liked.",
+      "url": "{{ _.base_url }}/posts/{{ _.post_id }}/like/",
+      "method": "POST",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 800
+    },
+    {
+      "_id": "req_posts_unlike",
+      "_type": "request",
+      "parentId": "fld_posts",
+      "name": "Unlike Post",
+      "description": "Removes the current user's like from the selected post.",
+      "url": "{{ _.base_url }}/posts/{{ _.post_id }}/like/",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 900
     },
     {
       "_id": "req_posts_delete",
       "_type": "request",
       "parentId": "fld_posts",
       "name": "Delete Post",
-      "description": "Only the post author can delete.",
+      "description": "Only the author can delete the post.",
       "url": "{{ _.base_url }}/posts/{{ _.post_id }}/",
       "method": "DELETE",
       "body": {},
@@ -627,14 +662,17 @@
         "type": "bearer",
         "token": "{{ _.access_token }}"
       },
-      "metaSortKey": 700
+      "script": {
+        "after-response": "await insomnia.environment.set('comment_id', '');\n"
+      },
+      "metaSortKey": 1000
     },
     {
       "_id": "req_comments_create",
       "_type": "request",
       "parentId": "fld_comments",
       "name": "Create Comment",
-      "description": "Requires authentication. Comments are only allowed on public posts.",
+      "description": "Adds a comment to the selected public post and syncs comment_id.",
       "url": "{{ _.base_url }}/posts/{{ _.post_id }}/comments/",
       "method": "POST",
       "body": {
@@ -655,6 +693,9 @@
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
+      },
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.id) {\n  await insomnia.environment.set('comment_id', String(data.id));\n}\n"
       },
       "metaSortKey": 100
     },
@@ -677,6 +718,9 @@
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
+      },
+      "script": {
+        "after-response": "await insomnia.environment.set('comment_id', '');\n"
       },
       "metaSortKey": 200
     },
@@ -704,7 +748,7 @@
       "_type": "request",
       "parentId": "fld_countries",
       "name": "Create Country",
-      "description": "Requires authentication.",
+      "description": "Protected by the project's default IsAuthenticatedOrReadOnly permission. Syncs country_id.",
       "url": "{{ _.base_url }}/countries/",
       "method": "POST",
       "body": {
@@ -726,6 +770,9 @@
         "type": "bearer",
         "token": "{{ _.access_token }}"
       },
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.id) {\n  await insomnia.environment.set('country_id', String(data.id));\n}\n"
+      },
       "metaSortKey": 200
     },
     {
@@ -745,14 +792,36 @@
         }
       ],
       "authentication": {},
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.id) {\n  await insomnia.environment.set('country_id', String(data.id));\n}\n"
+      },
       "metaSortKey": 300
+    },
+    {
+      "_id": "req_countries_retrieve_v2",
+      "_type": "request",
+      "parentId": "fld_countries",
+      "name": "Retrieve Country V2",
+      "description": "Gets the custom /v2 nested response for one country.",
+      "url": "{{ _.base_url }}/countries/{{ _.country_id }}/v2/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 400
     },
     {
       "_id": "req_countries_update",
       "_type": "request",
       "parentId": "fld_countries",
       "name": "Update Country",
-      "description": "Full update. Requires authentication.",
+      "description": "Full update for the selected country.",
       "url": "{{ _.base_url }}/countries/{{ _.country_id }}/",
       "method": "PUT",
       "body": {
@@ -774,14 +843,14 @@
         "type": "bearer",
         "token": "{{ _.access_token }}"
       },
-      "metaSortKey": 400
+      "metaSortKey": 500
     },
     {
-      "_id": "req_countries_partial_update",
+      "_id": "req_countries_patch",
       "_type": "request",
       "parentId": "fld_countries",
-      "name": "Partial Update Country",
-      "description": "Partial update. Requires authentication.",
+      "name": "Patch Country",
+      "description": "Partial update for the selected country.",
       "url": "{{ _.base_url }}/countries/{{ _.country_id }}/",
       "method": "PATCH",
       "body": {
@@ -803,14 +872,14 @@
         "type": "bearer",
         "token": "{{ _.access_token }}"
       },
-      "metaSortKey": 500
+      "metaSortKey": 600
     },
     {
       "_id": "req_countries_delete",
       "_type": "request",
       "parentId": "fld_countries",
       "name": "Delete Country",
-      "description": "Requires authentication.",
+      "description": "Deletes the selected country.",
       "url": "{{ _.base_url }}/countries/{{ _.country_id }}/",
       "method": "DELETE",
       "body": {},
@@ -825,14 +894,14 @@
         "type": "bearer",
         "token": "{{ _.access_token }}"
       },
-      "metaSortKey": 600
+      "metaSortKey": 700
     },
     {
       "_id": "req_states_list",
       "_type": "request",
       "parentId": "fld_states",
       "name": "List States",
-      "description": "Lists all states with country name.",
+      "description": "Lists all states with country_name.",
       "url": "{{ _.base_url }}/states/",
       "method": "GET",
       "body": {},
@@ -851,7 +920,7 @@
       "_type": "request",
       "parentId": "fld_states",
       "name": "Create State",
-      "description": "Requires authentication. Send country as the country id.",
+      "description": "Creates a state under country_id and syncs state_id.",
       "url": "{{ _.base_url }}/states/",
       "method": "POST",
       "body": {
@@ -873,6 +942,9 @@
         "type": "bearer",
         "token": "{{ _.access_token }}"
       },
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.id) {\n  await insomnia.environment.set('state_id', String(data.id));\n}\n"
+      },
       "metaSortKey": 200
     },
     {
@@ -892,6 +964,9 @@
         }
       ],
       "authentication": {},
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.id) {\n  await insomnia.environment.set('state_id', String(data.id));\n}\n"
+      },
       "metaSortKey": 300
     },
     {
@@ -899,7 +974,7 @@
       "_type": "request",
       "parentId": "fld_states",
       "name": "Update State",
-      "description": "Full update. Requires authentication.",
+      "description": "Full update for the selected state.",
       "url": "{{ _.base_url }}/states/{{ _.state_id }}/",
       "method": "PUT",
       "body": {
@@ -924,11 +999,11 @@
       "metaSortKey": 400
     },
     {
-      "_id": "req_states_partial_update",
+      "_id": "req_states_patch",
       "_type": "request",
       "parentId": "fld_states",
-      "name": "Partial Update State",
-      "description": "Partial update. Requires authentication.",
+      "name": "Patch State",
+      "description": "Partial update for the selected state.",
       "url": "{{ _.base_url }}/states/{{ _.state_id }}/",
       "method": "PATCH",
       "body": {
@@ -957,7 +1032,7 @@
       "_type": "request",
       "parentId": "fld_states",
       "name": "Delete State",
-      "description": "Requires authentication.",
+      "description": "Deletes the selected state.",
       "url": "{{ _.base_url }}/states/{{ _.state_id }}/",
       "method": "DELETE",
       "body": {},
@@ -979,7 +1054,7 @@
       "_type": "request",
       "parentId": "fld_cities",
       "name": "List Cities",
-      "description": "Lists all cities with state and country data.",
+      "description": "Lists all cities with state_name and country_name.",
       "url": "{{ _.base_url }}/cities/",
       "method": "GET",
       "body": {},
@@ -998,7 +1073,7 @@
       "_type": "request",
       "parentId": "fld_cities",
       "name": "Create City",
-      "description": "Requires authentication. Send state as the state id.",
+      "description": "Creates a city under state_id and syncs city_id.",
       "url": "{{ _.base_url }}/cities/",
       "method": "POST",
       "body": {
@@ -1020,6 +1095,9 @@
         "type": "bearer",
         "token": "{{ _.access_token }}"
       },
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.id) {\n  await insomnia.environment.set('city_id', String(data.id));\n}\n"
+      },
       "metaSortKey": 200
     },
     {
@@ -1039,6 +1117,9 @@
         }
       ],
       "authentication": {},
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.id) {\n  await insomnia.environment.set('city_id', String(data.id));\n}\n"
+      },
       "metaSortKey": 300
     },
     {
@@ -1046,7 +1127,7 @@
       "_type": "request",
       "parentId": "fld_cities",
       "name": "Update City",
-      "description": "Full update. Requires authentication.",
+      "description": "Full update for the selected city.",
       "url": "{{ _.base_url }}/cities/{{ _.city_id }}/",
       "method": "PUT",
       "body": {
@@ -1071,11 +1152,11 @@
       "metaSortKey": 400
     },
     {
-      "_id": "req_cities_partial_update",
+      "_id": "req_cities_patch",
       "_type": "request",
       "parentId": "fld_cities",
-      "name": "Partial Update City",
-      "description": "Partial update. Requires authentication.",
+      "name": "Patch City",
+      "description": "Partial update for the selected city.",
       "url": "{{ _.base_url }}/cities/{{ _.city_id }}/",
       "method": "PATCH",
       "body": {
@@ -1104,7 +1185,7 @@
       "_type": "request",
       "parentId": "fld_cities",
       "name": "Delete City",
-      "description": "Requires authentication.",
+      "description": "Deletes the selected city.",
       "url": "{{ _.base_url }}/cities/{{ _.city_id }}/",
       "method": "DELETE",
       "body": {},
@@ -1120,8 +1201,171 @@
         "token": "{{ _.access_token }}"
       },
       "metaSortKey": 600
+    },
+    {
+      "_id": "req_address_list",
+      "_type": "request",
+      "parentId": "fld_address",
+      "name": "List Addresses",
+      "description": "Lists only the authenticated user's linked address.",
+      "url": "{{ _.base_url }}/address/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\nconst items = Array.isArray(data) ? data : data.results;\n\nif (Array.isArray(items) && items.length > 0 && items[0].id) {\n  await insomnia.environment.set('address_id', String(items[0].id));\n}\n"
+      },
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_address_create",
+      "_type": "request",
+      "parentId": "fld_address",
+      "name": "Create Address",
+      "description": "Creates an address, links it to the authenticated user, and syncs address_id.",
+      "url": "{{ _.base_url }}/address/",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"permanent_address\": \"123 Main St\",\n  \"residential_address\": \"Apartment 4\",\n  \"country\": {{ _.country_id }},\n  \"state\": {{ _.state_id }},\n  \"city\": {{ _.city_id }},\n  \"postal_code\": \"54000\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.id) {\n  await insomnia.environment.set('address_id', String(data.id));\n}\n"
+      },
+      "metaSortKey": 200
+    },
+    {
+      "_id": "req_address_retrieve",
+      "_type": "request",
+      "parentId": "fld_address",
+      "name": "Retrieve Address",
+      "description": "Uses the address_id environment variable.",
+      "url": "{{ _.base_url }}/address/{{ _.address_id }}/",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "script": {
+        "after-response": "const data = JSON.parse(response.getBody());\n\nif (data.id) {\n  await insomnia.environment.set('address_id', String(data.id));\n}\n"
+      },
+      "metaSortKey": 300
+    },
+    {
+      "_id": "req_address_update",
+      "_type": "request",
+      "parentId": "fld_address",
+      "name": "Update Address",
+      "description": "Full update for address_id.",
+      "url": "{{ _.base_url }}/address/{{ _.address_id }}/",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"permanent_address\": \"456 New Street\",\n  \"residential_address\": \"House 7\",\n  \"country\": {{ _.country_id }},\n  \"state\": {{ _.state_id }},\n  \"city\": {{ _.city_id }},\n  \"postal_code\": \"54001\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 400
+    },
+    {
+      "_id": "req_address_patch",
+      "_type": "request",
+      "parentId": "fld_address",
+      "name": "Patch Address",
+      "description": "Includes one address field to satisfy the serializer's validation.",
+      "url": "{{ _.base_url }}/address/{{ _.address_id }}/",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"permanent_address\": \"456 New Street\",\n  \"postal_code\": \"54002\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "metaSortKey": 500
+    },
+    {
+      "_id": "req_address_delete",
+      "_type": "request",
+      "parentId": "fld_address",
+      "name": "Delete Address",
+      "description": "Deletes address_id and unlinks it from the authenticated user.",
+      "url": "{{ _.base_url }}/address/{{ _.address_id }}/",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "script": {
+        "after-response": "await insomnia.environment.set('address_id', '');\n"
+      },
+      "metaSortKey": 600
     }
   ]
 }
-
-
