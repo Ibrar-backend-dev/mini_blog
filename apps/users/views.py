@@ -7,6 +7,7 @@ from .utils import decode_verification_token
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.parsers import MultiPartParser, FormParser
 
+from apps.address.models import Address
 from apps.address.serializers import AddressSerializer
 
 
@@ -114,15 +115,14 @@ class ProfileView(APIView):
                 status= status.HTTP_400_BAD_REQUEST
             )
         
-        if user.address:
-            serializer=AddressSerializer(user.address, data=address_data, partial=True)
-        else:
-            serializer=AddressSerializer(data=address_data)
+        try:
+            address = user.address
+            serializer = AddressSerializer(address, data=address_data, partial=True)
+        except Address.DoesNotExist:
+            serializer = AddressSerializer(data=address_data)
 
         if serializer.is_valid():
-            address=serializer.save()
-            user.address=address 
-            user.save()
+            serializer.save(user=user)
             return Response(
                 UserProfileSerializer(user).data, status=status.HTTP_200_OK
             )
@@ -131,14 +131,13 @@ class ProfileView(APIView):
         """Delete user address"""
         user = request.user
 
-        if not user.address:
+        try:
+            address = user.address
+        except Address.DoesNotExist:
             return Response(
                 {"error": "User has no address to delete."},
                 status=status.HTTP_404_NOT_FOUND
             )
-        address = user.address
-        user.address = None
-        user.save(update_fields=["address"])
         address.delete()
         return Response(
             {"message": "Address deleted successfully."},

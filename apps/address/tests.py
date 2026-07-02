@@ -24,6 +24,12 @@ class AddressViewSetTests(APITestCase):
             name="Lahore",
             description="City",
         )
+        self.user = User.objects.create_user(
+            username="demo",
+            email="demo@example.com",
+            password="StrongPass123!",
+            is_email_verified=True,
+        )
         self.address = Address.objects.create(
             permanent_address="123 Main St",
             residential_address="Apartment 4",
@@ -31,13 +37,7 @@ class AddressViewSetTests(APITestCase):
             state=self.state,
             city=self.city,
             postal_code="54000",
-        )
-        self.user = User.objects.create_user(
-            username="demo",
-            email="demo@example.com",
-            password="StrongPass123!",
-            address=self.address,
-            is_email_verified=True,
+            user=self.user,
         )
 
     def test_owner_can_patch_their_own_address(self):
