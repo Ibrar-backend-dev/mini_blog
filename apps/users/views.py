@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from django.core import signing
+
+from utils.print_utils import debug_print
 from .utils import decode_verification_token
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -114,8 +116,63 @@ class ProfileView(APIView):
 
     def put(self, request):
         """Update user address"""
-        user = request.user
-        address_data = request.data.get("address")
+        request_data = request.data
+        logged_in_user = request.user
+        logged_in_user_email = logged_in_user.email
+
+        if not request_data:
+            return Response({"error": "Request data is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        signup_email = request_data.get("signup_email")
+
+        if signup_email != logged_in_user_email:
+            return Response({"error": "You are not authorized to update this address."}, status=status.HTTP_403_FORBIDDEN)
+
+        # try:
+        #     address_instance = Address.objects.get(user=logged_in_user)
+
+        # except Address.DoesNotExist:
+        #     return Response({"error": "Address does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+        address_data = request_data.get("address")
+
+        # Address.objects.create(
+        #     user=logged_in_user,
+        #     permanent_address=address_data.get("permanent_address"),
+        #     residential_address=address_data.get("residential_address"),
+        #     country_id=address_data.get("country"),
+        #     state_id=address_data.get("state"),
+        #     city_id=address_data.get("city"),
+        #     postal_code=address_data.get("postal_code"),
+        # )
+
+        instance, created = Address.objects.update_or_create(
+            user=logged_in_user,
+            defaults={
+                "permanent_address": address_data.get("permanent_address"),
+                "residential_address": address_data.get("residential_address"),
+                "country_id": address_data.get("country"),
+                "state_id": address_data.get("state"),
+                "city_id": address_data.get("city"),
+                "postal_code": address_data.get("postal_code"),
+            },
+        )
+        return Response(
+            {
+                "signup_email": signup_email,
+                "address": {
+                    "id": instance.id,
+                    "permanent_address": instance.permanent_address,
+                    "residential_address": instance.residential_address,
+                    "country": instance.country.name,
+                    "state": instance.state.name,
+                    "city": instance.city.name,
+                    "postal_code": instance.postal_code,
+                },
+                "message": "Address updated successfully.",
+            },
+            status=status.HTTP_200_OK,
+        )
 
         # if not address_data:
         #     return Response(
@@ -134,7 +191,6 @@ class ProfileView(APIView):
         #     return Response(
         #         UserProfileSerializer(user).data, status=status.HTTP_200_OK
         #     )
-        return Response({"message": "Address updated successfully."}, status=status.HTTP_200_OK)
 
     def delete(self, request):
         """Delete user address"""
