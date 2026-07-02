@@ -157,6 +157,9 @@ class ProfileView(APIView):
                 "postal_code": address_data.get("postal_code"),
             },
         )
+        debug_print(instance)
+        debug_print(created)
+
         return Response(
             {
                 "signup_email": signup_email,
