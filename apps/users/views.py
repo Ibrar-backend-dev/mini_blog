@@ -4,13 +4,11 @@ from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from django.core import signing
 
-from utils.print_utils import debug_print
 from .utils import decode_verification_token
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from apps.address.models import Address
-from apps.address.serializers import AddressSerializer
 
 
 from .services import send_verification_email
@@ -118,15 +116,9 @@ class ProfileView(APIView):
         """Update user address"""
         request_data = request.data
         logged_in_user = request.user
-        logged_in_user_email = logged_in_user.email
 
         if not request_data:
             return Response({"error": "Request data is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-        signup_email = request_data.get("signup_email")
-
-        if signup_email != logged_in_user_email:
-            return Response({"error": "You are not authorized to update this address."}, status=status.HTTP_403_FORBIDDEN)
 
         # try:
         #     address_instance = Address.objects.get(user=logged_in_user)
@@ -157,12 +149,12 @@ class ProfileView(APIView):
                 "postal_code": address_data.get("postal_code"),
             },
         )
-        debug_print(instance)
-        debug_print(created)
+        # debug_print(instance)
+        # debug_print(created)
 
         return Response(
             {
-                "signup_email": signup_email,
+                "signup_email": logged_in_user.email,
                 "address": {
                     "id": instance.id,
                     "permanent_address": instance.permanent_address,
