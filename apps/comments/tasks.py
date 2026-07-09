@@ -21,3 +21,21 @@ def send_comment_notification_email(post_title, commenter_name, comment_text,aut
         fail_silently=False,
     )
 
+@shared_task
+def send_reply_notification_email(post_title, parent_commenter_email, replier_name, reply_text):
+    subject = f"New reply on  '{post_title}'.\n\n"
+
+    message = (
+        f"You received a new reply on a comment in '{post_title}'.\n\n"
+        f"Replier: {replier_name}\n"
+        f"Reply: {reply_text}\n\n"
+    )
+
+    send_mail(
+        subject=subject,
+        message=message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[parent_commenter_email],
+        fail_silently=False,
+    )
+
