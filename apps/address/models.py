@@ -34,3 +34,8 @@ class Address(models.Model):
     permanent_address = models.CharField(max_length=255, blank=True)
     residential_address = models.CharField(max_length=255, blank=True)
     postal_code = models.CharField(max_length=20, blank=True)
+
+
+    def __str__(self):
+        return f"{self.permanent_address}, {self.residential_address}, {self.city.name}, {self.state.name}, {self.country.name}, {self.postal_code}"
+

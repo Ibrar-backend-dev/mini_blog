@@ -1,130 +1,128 @@
-﻿from django.db.models import Prefetch
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated , AllowAny
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.parsers import FormParser , JSONParser ,MultiPartParser
 from rest_framework import status
-
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from apps.comments.tasks import send_comment_notification_email, send_reply_notification_email
 from apps.posts.models import Post
 
-from.models import Comment
+from .models import Comment
 from .serializers import CommentReadSerializer, CommentWriteSerializer
 
 
-
-def get_visible_post(post_id , user):
-    
-    post = get_object_or_404(Post , id = post_id)
+def get_visible_post(post_id, user):
+    post = get_object_or_404(Post, id=post_id)
 
     if post.is_private and (not user.is_authenticated or user != post.author):
         raise PermissionDenied("Comments are only allowed on public posts.")
-    
+
     return post
 
 
 def get_visible_comment(comment_id, user):
     comment = get_object_or_404(
         Comment.objects.select_related("post", "commenter"),
-        id = comment_id ,
+        id=comment_id,
     )
 
-    if comment.post.is_private and (not user.is_aithenticated or user != comment.post.author):
+    if comment.post.is_private and (not user.is_authenticated or user != comment.post.author):
         raise PermissionDenied("You do not have permission to access this comment.")
-    
+
     return comment
 
 
 class PostCommentListCreateView(APIView):
-    parser_classes= [MultiPartParser , FormParser , JSONParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_permissions(self):
         if self.request.method == "POST":
             return [IsAuthenticated()]
         return [AllowAny()]
-    
 
-    def get(self, request, post_id):
-        post = get_visible_post(post_id, request.user)
+    def get(self, request, id):
+        post = get_visible_post(id, request.user)
 
         reply_queryset = (
             Comment.objects.filter(parent__isnull=False)
             .select_related("commenter")
-            .prefetch_related("likes" , "media")
-            .oreder_by("created_at")
+            .prefetch_related("likes", "media")
+            .order_by("created_at")
         )
 
         comments = (
-            Comment.objects.filter(post=post, parent__isnull= True)
+            Comment.objects.filter(post=post, parent__isnull=True)
             .select_related("commenter")
-            .prefetch_related("likes","media" , Prefetch("replies" , queryset= reply_queryset, to_attr = "prefetch_replies"),
-        )
-        .order_by("created_at")
+            .prefetch_related(
+                "likes",
+                "media",
+                Prefetch("replies", queryset=reply_queryset, to_attr="prefetched_replies"),
+            )
+            .order_by("created_at")
         )
 
         serializer = CommentReadSerializer(
             comments,
-            many = True,
-            context = {"request": request},
+            many=True,
+            context={"request": request},
         )
-        return Response(serializer.data, status= status.HTTP_200_OK)
-    
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-def post(self, request, post_id):
-    post = get_visible_post(post_id)
+    def post(self, request, id):
+        post = get_visible_post(id, request.user)
 
-    serializer = CommentWriteSerializer(
-        data = request.data,
-        context={"request":request , "post":post},
-    )
+        serializer = CommentWriteSerializer(
+            data=request.data,
+            context={"request": request, "post": post},
+        )
+        serializer.is_valid(raise_exception=True)
+        comment = serializer.save()
 
-    serializer.is_valid(raise_exception=True)
-    comment =serializer.save()
+        if comment.parent_id is None:
+            if post.author != request.user:
+                send_comment_notification_email.delay(
+                    post_title=post.title,
+                    commenter_name=request.user.username,
+                    comment_text=comment.comment_text,
+                    author_email=post.author.email,
+                )
+        else:
+            if comment.parent.commenter != request.user:
+                send_reply_notification_email.delay(
+                    post_title=post.title,
+                    parent_commenter_email=comment.parent.commenter.email,
+                    replier_name=request.user.username,
+                    reply_text=comment.comment_text,
+                )
 
-    if comment.parent_id is None:
-        if post.author != request.user:
-            send_comment_notification_email(
-                post_title=post.title,
-                commenter_name=request.user.username,
-                comment_text=comment.comment_text,
-                author_email=post.author.email,
-            )
-    else:
-        if comment.parent.commenter != request.user:
-            send_reply_notification_email.delay(
-                post_title=post.title,
-                parent_commenter_email = comment.parent.commenter.email,
-                replier_name = request.user.username,
-                reply_text = comment.comment_text,
-            )
-
-    return Response(
-        CommentReadSerializer(comment , content = {"request": request}).data,
-        status = status.HTTP_201_CREATED,
+        return Response(
+            CommentReadSerializer(comment, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
         )
 
 
 class CommentDeleteView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def delete(self, request, comment_id):
-        comment = get_visible_comment(comment_id, request.user)
+    def delete(self, request, id):
+        comment = get_visible_comment(id, request.user)
 
         if comment.commenter != request.user:
             raise PermissionDenied("Only the commenter can delete the comment.")
-        
-        comment.delete()
 
+        comment.delete()
         return Response(
-            {"message":"Your message is deleted."},
+            {"message": "Your message is deleted."},
             status=status.HTTP_200_OK,
         )
-    
+
+
 class CommentLikeView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, comment_id):
         comment = get_visible_comment(comment_id, request.user)
@@ -133,71 +131,19 @@ class CommentLikeView(APIView):
         return Response(
             {
                 "likes_count": comment.likes.count(),
-                "is_liked": comment.likes.filter(id =request.user.id).exists(),
+                "is_liked": comment.likes.filter(id=request.user.id).exists(),
             },
             status=status.HTTP_200_OK,
         )
-    
+
     def delete(self, request, comment_id):
         comment = get_visible_comment(comment_id, request.user)
         comment.likes.remove(request.user)
 
         return Response(
             {
-                "likes_count":comment.likes.count(),
-                "is_liked": comment.likes.filter(id =request.user.id).exists(),
+                "likes_count": comment.likes.count(),
+                "is_liked": comment.likes.filter(id=request.user.id).exists(),
             },
-            status = status.HTTP_200_OK,
+            status=status.HTTP_200_OK,
         )
-
-# class CommentCreateView(APIView):
-
-#     permission_classes = [IsAuthenticated]
-
-#     def post( self, request, id ):
-
-#         post =get_object_or_404(Post, id=id)
-
-#         if post.is_private:
-#             raise PermissionDenied(" Comments are only allowed on public posts.")
-        
-#         serializer = CommentReadSerializer(data=request.data)
-#         serializer.is_valid(raise_exception = True)
-        
-#         comment=serializer.save(
-#             post=post,
-#             commenter=request.user
-#         )
-
-#         send_comment_notification_email.delay(
-#             post_title=post.title,
-#             commenter_name=request.user.username,
-#             comment_text=comment.comment_text,
-#             author_email=post.author.email,
-#         )
-
-        
-
-#         return Response(
-#             CommentReadSerializer(comment).data,
-#             status=status.HTTP_201_CREATED
-#         )
-    
-
-# class CommentDeleteView(APIView):
-
-#     permission_classes = [IsAuthenticated]
-
-#     def delete(self, request, id):
-#         comment=get_object_or_404(Comment, id=id)
-
-#         if comment.commenter != request.user:
-#             raise PermissionDenied("Only the commenter can delete the comment.")
-        
-#         comment.delete()
-
-#         return Response(
-#             {"message": "your message is deleted"},
-#             status=status.HTTP_200_OK,
-#         )
-    

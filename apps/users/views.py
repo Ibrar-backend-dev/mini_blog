@@ -168,7 +168,6 @@ class ProfileView(APIView):
             },
             status=status.HTTP_200_OK,
         )
-
         # if not address_data:
         #     return Response(
         #         {"error": "Address data is required."},
