@@ -34,9 +34,9 @@ class AddressViewSet(ModelViewSet):
         else:
             raise PermissionDenied("You don't have permission to update this address.")
 
-    def perform_destroy(self, instance):
+    def perform_destroy(self, address):
 
-        if instance.user_id == self.request.user.id:
-            instance.delete()
+        if address.user_id == self.request.user.id:
+            address.delete()
         else:
             raise PermissionDenied("You don't have permission to delete this address.")
